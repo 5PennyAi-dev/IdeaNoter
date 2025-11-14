@@ -272,9 +272,9 @@ export default function Home() {
                 <Tag size={20} />
               </button>
 
-              {/* Tag Filter Dropdown */}
+              {/* Tag Filter Dropdown with delete functionality */}
               {showTagFilter && (
-                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-xl shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                   <div className="p-3">
                     <button
                       onClick={() => {
@@ -295,11 +295,11 @@ export default function Home() {
                         Aucun tag disponible
                       </p>
                     ) : (
-                      <div className="max-h-48 overflow-y-auto">
+                      <div className="max-h-48 overflow-y-auto space-y-2">
                         {allTags.map((tag) => (
                           <div
                             key={tag}
-                            className="flex items-center gap-1 mb-1"
+                            className="flex items-stretch gap-2"
                           >
                             <button
                               onClick={() => {
@@ -319,10 +319,10 @@ export default function Home() {
                                 e.stopPropagation()
                                 handleDeleteTag(tag)
                               }}
-                              className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                              className="w-8 h-full flex items-center justify-center text-white font-bold bg-red-500 hover:bg-red-600 rounded-lg transition-colors"
                               title="Supprimer ce tag"
                             >
-                              <X size={16} />
+                              ×
                             </button>
                           </div>
                         ))}
