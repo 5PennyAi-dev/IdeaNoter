@@ -47,10 +47,15 @@ export default function Note({ id, text, title, color, createdAt, tags, isPinned
       onClick={() => onEdit(id)}
     >
       {tags && tags.length > 0 && (
-        <div className="mb-3">
-          <span className="text-gray-700 text-xs font-semibold bg-black/10 rounded px-2 py-1 inline-block">
-            {tags.join('-')}
-          </span>
+        <div className="mb-3 flex flex-wrap gap-2">
+          {tags.map((tag, index) => (
+            <span
+              key={index}
+              className="text-gray-700 text-xs font-semibold bg-gradient-to-r from-black/10 to-black/5 hover:from-black/15 hover:to-black/10 rounded-full px-3 py-1 inline-block shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105"
+            >
+              {tag}
+            </span>
+          ))}
         </div>
       )}
       {title && (
