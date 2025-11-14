@@ -7,7 +7,7 @@ interface NoteProps {
   text: string
   title?: string
   color: string
-  createdAt: string
+  createdAt: string | number  // Support both ISO string and timestamp
   tags: string[]
   isPinned?: boolean
   onEdit: (id: string) => void
@@ -29,9 +29,10 @@ export default function Note({ id, text, title, color, createdAt, tags, isPinned
     'note-mint': 'bg-note-mint border-note-mint-accent',
   }
 
-  const formatDate = (isoString: string): string => {
+  const formatDate = (dateValue: string | number): string => {
     try {
-      const date = new Date(isoString)
+      // Handle both ISO string and timestamp
+      const date = typeof dateValue === 'number' ? new Date(dateValue) : new Date(dateValue)
       const day = String(date.getDate()).padStart(2, '0')
       const month = String(date.getMonth() + 1).padStart(2, '0')
       const year = date.getFullYear()
