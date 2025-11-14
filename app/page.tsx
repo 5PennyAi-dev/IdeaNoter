@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { Search, X, Tag, Plus, FileText, SearchX } from 'lucide-react'
 import Note from './components/Note'
 import NoteForm from './components/NoteForm'
+import { db } from '@/lib/instant'
+import { id } from '@instantdb/react'
 
 interface NoteItem {
   id: string
@@ -33,82 +35,45 @@ const getRandomColor = (): string => {
 }
 
 export default function Home() {
-  const [notes, setNotes] = useState<NoteItem[]>([])
+  // Query notes and tags from InstantDB
+  const { isLoading, error, data } = db.useQuery({ notes: {}, tags: {} })
+  const notes = data?.notes || []
+  const tags = data?.tags || []
+
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editingTitle, setEditingTitle] = useState('')
   const [editingText, setEditingText] = useState('')
   const [editingTags, setEditingTags] = useState<string[]>([])
-  const [allTags, setAllTags] = useState<string[]>([])
-  const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [showSearch, setShowSearch] = useState(false)
   const [showTagFilter, setShowTagFilter] = useState(false)
   const [selectedTagFilter, setSelectedTagFilter] = useState<string | null>(null)
 
-  // Load notes and tags from localStorage
-  useEffect(() => {
-    const savedNotes = localStorage.getItem('notes')
-    if (savedNotes) {
-      try {
-        let parsedNotes = JSON.parse(savedNotes)
-        // Migrate old notes without tags and isPinned fields
-        parsedNotes = parsedNotes.map((note: any) => ({
-          ...note,
-          tags: note.tags || [],
-          isPinned: note.isPinned ?? false,
-        }))
-        setNotes(parsedNotes)
-      } catch (error) {
-        console.error('Error loading notes:', error)
-      }
-    }
+  // Extract unique tag names from tags collection
+  const allTags = tags.map((tag: any) => tag.name)
 
-    const savedTags = localStorage.getItem('tags')
-    if (savedTags) {
-      try {
-        setAllTags(JSON.parse(savedTags))
-      } catch (error) {
-        console.error('Error loading tags:', error)
-      }
-    }
-    setIsLoading(false)
-  }, [])
-
-  // Save notes to localStorage
-  useEffect(() => {
-    if (!isLoading) {
-      localStorage.setItem('notes', JSON.stringify(notes))
-    }
-  }, [notes, isLoading])
-
-  // Save tags to localStorage
-  useEffect(() => {
-    if (!isLoading) {
-      localStorage.setItem('tags', JSON.stringify(allTags))
-    }
-  }, [allTags, isLoading])
-
-  const handleAddNote = (title: string, text: string, tags: string[]) => {
-    const newNote: NoteItem = {
-      id: Date.now().toString(),
-      text,
-      title: title || undefined,
-      color: getRandomColor(),
-      createdAt: new Date().toISOString(),
-      tags,
-      isPinned: false,
-    }
-    setNotes([newNote, ...notes])
+  const handleAddNote = (title: string, text: string, noteTags: string[]) => {
+    const noteId = id()
+    db.transact([
+      db.tx.notes[noteId].update({
+        text,
+        title: title || undefined,
+        color: getRandomColor(),
+        createdAt: Date.now(),
+        tags: noteTags,
+        isPinned: false,
+      })
+    ])
     setShowForm(false)
     setEditingTitle('')
     setEditingTags([])
   }
 
-  const handleEditNote = (id: string) => {
-    const note = notes.find((n) => n.id === id)
+  const handleEditNote = (noteId: string) => {
+    const note = notes.find((n: any) => n.id === noteId)
     if (note) {
-      setEditingId(id)
+      setEditingId(noteId)
       setEditingTitle(note.title || '')
       setEditingText(note.text)
       setEditingTags(note.tags)
@@ -116,13 +81,15 @@ export default function Home() {
     }
   }
 
-  const handleUpdateNote = (title: string, text: string, tags: string[]) => {
+  const handleUpdateNote = (title: string, text: string, noteTags: string[]) => {
     if (editingId) {
-      setNotes(
-        notes.map((note) =>
-          note.id === editingId ? { ...note, title: title || undefined, text, tags } : note
-        )
-      )
+      db.transact([
+        db.tx.notes[editingId].update({
+          text,
+          title: title || undefined,
+          tags: noteTags,
+        })
+      ])
       setEditingId(null)
       setEditingTitle('')
       setEditingText('')
@@ -131,16 +98,19 @@ export default function Home() {
     }
   }
 
-  const handleDeleteNote = (id: string) => {
-    setNotes(notes.filter((note) => note.id !== id))
+  const handleDeleteNote = (noteId: string) => {
+    db.transact([db.tx.notes[noteId].delete()])
   }
 
-  const handleTogglePin = (id: string) => {
-    setNotes(
-      notes.map((note) =>
-        note.id === id ? { ...note, isPinned: !note.isPinned } : note
-      )
-    )
+  const handleTogglePin = (noteId: string) => {
+    const note = notes.find((n: any) => n.id === noteId)
+    if (note) {
+      db.transact([
+        db.tx.notes[noteId].update({
+          isPinned: !note.isPinned
+        })
+      ])
+    }
   }
 
   const handleCancelForm = () => {
@@ -151,27 +121,38 @@ export default function Home() {
     setEditingTags([])
   }
 
-  const handleAddTag = (tag: string) => {
-    const trimmedTag = tag.trim()
+  const handleAddTag = (tagName: string) => {
+    const trimmedTag = tagName.trim()
     if (trimmedTag && !allTags.includes(trimmedTag)) {
-      setAllTags([...allTags, trimmedTag])
+      const tagId = id()
+      db.transact([
+        db.tx.tags[tagId].update({
+          name: trimmedTag
+        })
+      ])
     }
   }
 
-  const handleDeleteTag = (tag: string) => {
-    // Remove tag from allTags list
-    setAllTags(allTags.filter((t) => t !== tag))
+  const handleDeleteTag = (tagName: string) => {
+    // Find the tag entity by name
+    const tagToDelete = tags.find((t: any) => t.name === tagName)
+    if (tagToDelete) {
+      db.transact([db.tx.tags[tagToDelete.id].delete()])
+    }
 
     // Remove tag from all notes that use it
-    setNotes(
-      notes.map((note) => ({
-        ...note,
-        tags: note.tags.filter((t) => t !== tag),
-      }))
-    )
+    notes.forEach((note: any) => {
+      if (note.tags.includes(tagName)) {
+        db.transact([
+          db.tx.notes[note.id].update({
+            tags: note.tags.filter((t: string) => t !== tagName)
+          })
+        ])
+      }
+    })
 
     // Clear tag filter if the deleted tag is currently selected
-    if (selectedTagFilter === tag) {
+    if (selectedTagFilter === tagName) {
       setSelectedTagFilter(null)
     }
   }
@@ -182,33 +163,43 @@ export default function Home() {
     // Apply search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase()
-      filtered = filtered.filter((note) =>
+      filtered = filtered.filter((note: any) =>
         note.text.toLowerCase().includes(query)
       )
     }
 
     // Apply tag filter
     if (selectedTagFilter) {
-      filtered = filtered.filter((note) =>
+      filtered = filtered.filter((note: any) =>
         note.tags.includes(selectedTagFilter)
       )
     }
 
     // Sort by date (newest first), with pinned notes first
-    return filtered.sort((a, b) => {
+    return filtered.sort((a: any, b: any) => {
       // If one is pinned and the other isn't, pinned comes first
       if (a.isPinned && !b.isPinned) return -1
       if (!a.isPinned && b.isPinned) return 1
 
       // If both have same pin status, sort by date
-      const dateA = new Date(a.createdAt).getTime()
-      const dateB = new Date(b.createdAt).getTime()
-      return dateB - dateA
+      // createdAt is now a number (timestamp) instead of ISO string
+      return b.createdAt - a.createdAt
     })
   }
 
   if (isLoading) {
     return <div className="flex items-center justify-center h-screen">Chargement...</div>
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <p className="text-red-500 text-xl mb-4">Erreur de connexion à la base de données</p>
+          <p className="text-gray-600">{error.message}</p>
+        </div>
+      </div>
+    )
   }
 
   return (
