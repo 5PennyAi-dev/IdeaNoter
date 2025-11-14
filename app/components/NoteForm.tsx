@@ -65,10 +65,10 @@ export default function NoteForm({
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 modal-backdrop">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto modal-content">
         <form onSubmit={handleSubmit} className="p-6">
-          <h2 className="text-2xl font-bold mb-4 text-gray-800">
+          <h2 className="text-3xl font-bold mb-6 text-gray-900 tracking-tight">
             {isEditing ? 'Modifier la note' : 'Nouvelle note'}
           </h2>
 
@@ -126,13 +126,13 @@ export default function NoteForm({
                   {selectedTags.map((tag) => (
                     <span
                       key={tag}
-                      className="bg-blue-500 text-white text-xs font-medium px-3 py-1 rounded-full flex items-center gap-1"
+                      className="bg-blue-500 text-white text-xs font-medium px-3 py-1 rounded-full flex items-center gap-1 transition-all hover:bg-blue-600 hover:shadow-md"
                     >
                       {tag}
                       <button
                         type="button"
                         onClick={() => toggleTag(tag)}
-                        className="ml-1 hover:text-red-200"
+                        className="ml-1 hover:text-red-200 transition-colors"
                       >
                         ×
                       </button>
@@ -199,13 +199,13 @@ export default function NoteForm({
             <button
               type="button"
               onClick={onCancel}
-              className="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold rounded-lg transition-colors"
+              className="flex-1 px-4 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition-all hover:shadow-md"
             >
               Annuler
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-colors"
+              className="flex-1 px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:scale-105"
             >
               {isEditing ? 'Modifier' : 'Ajouter'}
             </button>

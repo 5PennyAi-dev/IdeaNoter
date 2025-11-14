@@ -54,7 +54,7 @@ export default function Note({ id, text, title, color, createdAt, tags, isPinned
         </div>
       )}
       {title && (
-        <h3 className="text-gray-800 text-lg font-bold mb-2 break-words pr-8">
+        <h3 className="text-gray-900 text-xl font-bold mb-3 break-words pr-8 leading-tight">
           {title}
         </h3>
       )}

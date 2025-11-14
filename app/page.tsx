@@ -202,18 +202,18 @@ export default function Home() {
             <button className="text-gray-600 hover:text-gray-800 p-2 rounded-lg hover:bg-gray-100 transition-colors">
               <ArrowLeft size={24} />
             </button>
-            <h1 className="text-3xl font-bold text-gray-800">Mes notes</h1>
+            <h1 className="text-4xl font-bold text-gray-900 tracking-tight">Mes notes</h1>
           </div>
 
           {/* Search Bar */}
           {showSearch && (
-            <div className="flex-1 mx-4 max-w-sm">
+            <div className="flex-1 mx-4 max-w-sm animate-in fade-in slide-in-from-top-2 duration-200">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Rechercher..."
-                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm"
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all text-sm"
                 autoFocus
               />
             </div>
@@ -256,7 +256,7 @@ export default function Home() {
 
               {/* Tag Filter Dropdown */}
               {showTagFilter && (
-                <div className="absolute right-0 mt-2 w-48 bg-white border-2 border-gray-300 rounded-lg shadow-lg z-50">
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                   <div className="p-3">
                     <button
                       onClick={() => {
@@ -327,16 +327,16 @@ export default function Home() {
         {/* Notes Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {notes.length === 0 ? (
-            <div className="col-span-full flex flex-col items-center justify-center py-16 text-gray-400">
-              <FileText size={64} className="mb-4 text-gray-300" strokeWidth={1.5} />
-              <p className="text-lg font-medium">Aucune note pour le moment</p>
-              <p className="text-sm">Cliquez sur le bouton + pour ajouter une note</p>
+            <div className="col-span-full flex flex-col items-center justify-center py-20 text-gray-400">
+              <FileText size={72} className="mb-6 text-gray-300" strokeWidth={1.5} />
+              <p className="text-xl font-semibold text-gray-500 mb-2">Aucune note pour le moment</p>
+              <p className="text-sm text-gray-400">Cliquez sur le bouton + pour ajouter une note</p>
             </div>
           ) : getFilteredAndSortedNotes().length === 0 ? (
-            <div className="col-span-full flex flex-col items-center justify-center py-16 text-gray-400">
-              <SearchX size={64} className="mb-4 text-gray-300" strokeWidth={1.5} />
-              <p className="text-lg font-medium">Aucun résultat</p>
-              <p className="text-sm">
+            <div className="col-span-full flex flex-col items-center justify-center py-20 text-gray-400">
+              <SearchX size={72} className="mb-6 text-gray-300" strokeWidth={1.5} />
+              <p className="text-xl font-semibold text-gray-500 mb-2">Aucun résultat</p>
+              <p className="text-sm text-gray-400 text-center max-w-md">
                 {searchQuery && selectedTagFilter
                   ? `Aucune note ne contient "${searchQuery}" avec le tag "${selectedTagFilter}"`
                   : searchQuery
@@ -347,7 +347,7 @@ export default function Home() {
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery('')}
-                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm transition-colors"
+                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-all hover:shadow-lg hover:scale-105"
                   >
                     Effacer la recherche
                   </button>
@@ -355,7 +355,7 @@ export default function Home() {
                 {selectedTagFilter && (
                   <button
                     onClick={() => setSelectedTagFilter(null)}
-                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm transition-colors"
+                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-all hover:shadow-lg hover:scale-105"
                   >
                     Effacer le filtre tag
                   </button>
