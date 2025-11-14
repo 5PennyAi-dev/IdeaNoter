@@ -295,11 +295,11 @@ export default function Home() {
                         Aucun tag disponible
                       </p>
                     ) : (
-                      <div className="max-h-48 overflow-y-auto">
+                      <div className="max-h-48 overflow-y-auto space-y-2">
                         {allTags.map((tag) => (
                           <div
                             key={tag}
-                            className="flex items-center gap-1 mb-1"
+                            className="flex items-stretch gap-2"
                           >
                             <button
                               onClick={() => {
@@ -319,10 +319,10 @@ export default function Home() {
                                 e.stopPropagation()
                                 handleDeleteTag(tag)
                               }}
-                              className="px-2 py-1 text-xs font-bold text-red-600 bg-red-100 hover:bg-red-200 rounded transition-colors flex-shrink-0"
+                              className="w-8 h-full flex items-center justify-center text-white font-bold bg-red-500 hover:bg-red-600 rounded-lg transition-colors"
                               title="Supprimer ce tag"
                             >
-                              ✕
+                              ×
                             </button>
                           </div>
                         ))}
