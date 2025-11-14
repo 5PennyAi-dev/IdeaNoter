@@ -4,8 +4,7 @@ import { useState, useEffect } from 'react'
 import { Search, X, Tag, Plus, FileText, SearchX } from 'lucide-react'
 import Note from './components/Note'
 import NoteForm from './components/NoteForm'
-import { db } from '@/lib/instant'
-import { id } from '@instantdb/react'
+import { db, id } from '@/lib/instant'
 
 interface NoteItem {
   id: string

@@ -1,4 +1,4 @@
-import { init, i } from '@instantdb/react'
+import { init, i, id } from '@instantdb/react'
 
 // Define the schema for our data
 const schema = i.schema({
@@ -23,6 +23,9 @@ const schema = i.schema({
 const APP_ID = 'b4000325-ee7c-4fb1-a80b-aace7ab11bac'
 
 export const db = init({ appId: APP_ID, schema })
+
+// Export id function for creating unique IDs
+export { id }
 
 // Type helpers
 export type Schema = typeof schema
