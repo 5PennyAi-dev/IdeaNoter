@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  background-color: #f8f8f8;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Quill Editor Styling */
+.ql-toolbar {
+  border-bottom: 1px solid #d1d5db;
+  border-radius: 0;
+  background-color: #f9fafb;
+}
+
+.ql-container {
+  border: none;
+  font-size: 1rem;
+  min-height: 200px;
+}
+
+.ql-editor {
+  padding: 12px;
+  font-family: inherit;
+}
+
+.ql-editor.ql-blank::before {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+/* Rich text content display in notes */
+.note-content {
+  color: #1f2937;
+  line-height: 1.6;
+}
+
+.note-content strong {
+  font-weight: 600;
+}
+
+.note-content em {
+  font-style: italic;
+}
+
+.note-content u {
+  text-decoration: underline;
+}
+
+.note-content s {
+  text-decoration: line-through;
+}
+
+.note-content blockquote {
+  border-left: 4px solid #3b82f6;
+  padding-left: 12px;
+  color: #6b7280;
+  margin: 8px 0;
+}
+
+.note-content code {
+  background-color: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 0.9em;
+}
+
+.note-content pre {
+  background-color: #1f2937;
+  color: #f3f4f6;
+  padding: 12px;
+  border-radius: 4px;
+  overflow-x: auto;
+  margin: 8px 0;
+}
+
+.note-content pre code {
+  background-color: transparent;
+  color: inherit;
+  padding: 0;
+}
+
+.note-content ul,
+.note-content ol {
+  margin: 8px 0;
+  padding-left: 24px;
+}
+
+.note-content li {
+  margin: 4px 0;
+}
+
+.note-content a {
+  color: #3b82f6;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.note-content a:hover {
+  color: #1d4ed8;
+}

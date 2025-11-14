@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(git init:*)",
+      "Bash(git remote add:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nAdd rich text editor with formatting toolbar and keyboard shortcuts\n\n- Implement RichTextEditor component with semantic HTML tags for formatting\n- Add formatting toolbar with buttons for bold, italic, underline, strikethrough, blockquote, code, and lists\n- Add keyboard shortcuts support (Ctrl+B, Ctrl+I, Ctrl+U) for faster text formatting\n- Add edit/preview mode toggle to view HTML without displaying raw markup\n- Add CSS styling for rendered rich text content in notes\n- Replace react-quill with simple textarea solution to avoid Next.js hydration conflicts\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
