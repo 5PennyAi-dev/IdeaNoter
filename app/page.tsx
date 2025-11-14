@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowLeft, Search, X, Tag, MoreVertical, Plus, FileText, SearchX } from 'lucide-react'
+import { Search, X, Tag, Plus, FileText, SearchX } from 'lucide-react'
 import Note from './components/Note'
 import NoteForm from './components/NoteForm'
 
@@ -199,9 +199,6 @@ export default function Home() {
       <header className="bg-white/95 backdrop-blur-md border-b border-gray-200/50 sticky top-0 z-40 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3 flex-1">
-            <button className="text-gray-600 hover:text-gray-800 p-2 rounded-lg hover:bg-gray-100 transition-colors">
-              <ArrowLeft size={24} />
-            </button>
             <h1 className="text-4xl font-bold text-gray-900 tracking-tight">Mes notes</h1>
           </div>
 
@@ -300,9 +297,6 @@ export default function Home() {
                 </div>
               )}
             </div>
-            <button className="text-gray-600 hover:text-gray-800 p-2 rounded-lg hover:bg-gray-100 transition-colors">
-              <MoreVertical size={20} />
-            </button>
           </div>
         </div>
       </header>
