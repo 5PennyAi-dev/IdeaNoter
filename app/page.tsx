@@ -158,6 +158,24 @@ export default function Home() {
     }
   }
 
+  const handleDeleteTag = (tag: string) => {
+    // Remove tag from allTags list
+    setAllTags(allTags.filter((t) => t !== tag))
+
+    // Remove tag from all notes that use it
+    setNotes(
+      notes.map((note) => ({
+        ...note,
+        tags: note.tags.filter((t) => t !== tag),
+      }))
+    )
+
+    // Clear tag filter if the deleted tag is currently selected
+    if (selectedTagFilter === tag) {
+      setSelectedTagFilter(null)
+    }
+  }
+
   const getFilteredAndSortedNotes = () => {
     let filtered = [...notes]
 
@@ -279,20 +297,34 @@ export default function Home() {
                     ) : (
                       <div className="max-h-48 overflow-y-auto">
                         {allTags.map((tag) => (
-                          <button
+                          <div
                             key={tag}
-                            onClick={() => {
-                              setSelectedTagFilter(tag)
-                              setShowTagFilter(false)
-                            }}
-                            className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors mb-1 ${
-                              selectedTagFilter === tag
-                                ? 'bg-blue-500 text-white'
-                                : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
-                            }`}
+                            className="flex items-center gap-1 mb-1"
                           >
-                            {tag}
-                          </button>
+                            <button
+                              onClick={() => {
+                                setSelectedTagFilter(tag)
+                                setShowTagFilter(false)
+                              }}
+                              className={`flex-1 text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                                selectedTagFilter === tag
+                                  ? 'bg-blue-500 text-white'
+                                  : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
+                              }`}
+                            >
+                              {tag}
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDeleteTag(tag)
+                              }}
+                              className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                              title="Supprimer ce tag"
+                            >
+                              <X size={16} />
+                            </button>
+                          </div>
                         ))}
                       </div>
                     )}
