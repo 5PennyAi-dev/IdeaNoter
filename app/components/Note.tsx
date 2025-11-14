@@ -86,7 +86,9 @@ export default function Note({ id, text, title, color, createdAt, tags, isPinned
         <button
           onClick={(e) => {
             e.stopPropagation()
-            onDelete(id)
+            if (window.confirm('Êtes-vous sûr de vouloir supprimer cette note ?')) {
+              onDelete(id)
+            }
           }}
           className="bg-red-500/90 hover:bg-red-600/90 backdrop-blur-sm text-white rounded-lg w-8 h-8 flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg"
           title="Supprimer"
