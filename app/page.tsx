@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { ArrowLeft, Search, X, Tag, MoreVertical, Plus, FileText, SearchX } from 'lucide-react'
 import Note from './components/Note'
 import NoteForm from './components/NoteForm'
 
@@ -198,25 +199,27 @@ export default function Home() {
       <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3 flex-1">
-            <button className="text-gray-600 hover:text-gray-800 text-2xl">←</button>
-            <h1 className="text-3xl font-bold text-gray-800">Mes notes</h1>
+            <button className="text-gray-600 hover:text-gray-800 p-2 rounded-lg hover:bg-gray-100 transition-colors">
+              <ArrowLeft size={24} />
+            </button>
+            <h1 className="text-4xl font-bold text-gray-900 tracking-tight">Mes notes</h1>
           </div>
 
           {/* Search Bar */}
           {showSearch && (
-            <div className="flex-1 mx-4 max-w-sm">
+            <div className="flex-1 mx-4 max-w-sm animate-in fade-in slide-in-from-top-2 duration-200">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Rechercher..."
-                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm"
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all text-sm"
                 autoFocus
               />
             </div>
           )}
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => {
                 setShowSearch(!showSearch)
@@ -224,36 +227,36 @@ export default function Home() {
                   setSearchQuery('')
                 }
               }}
-              className={`text-2xl transition-colors ${
-                showSearch ? 'text-blue-500' : 'text-gray-600 hover:text-gray-800'
+              className={`p-2 rounded-lg transition-colors ${
+                showSearch ? 'text-blue-500 bg-blue-50' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
               }`}
               title={showSearch ? 'Fermer la recherche' : 'Rechercher'}
             >
-              🔍
+              <Search size={20} />
             </button>
             {showSearch && searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="text-sm px-2 py-1 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded"
+                className="px-3 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors flex items-center gap-1"
                 title="Effacer la recherche"
               >
-                ✕
+                <X size={14} />
               </button>
             )}
             <div className="relative">
               <button
                 onClick={() => setShowTagFilter(!showTagFilter)}
-                className={`text-2xl transition-colors ${
-                  selectedTagFilter ? 'text-blue-500' : 'text-gray-600 hover:text-gray-800'
+                className={`p-2 rounded-lg transition-colors ${
+                  selectedTagFilter ? 'text-blue-500 bg-blue-50' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
                 }`}
                 title="Filtrer par tag"
               >
-                🏷️
+                <Tag size={20} />
               </button>
 
               {/* Tag Filter Dropdown */}
               {showTagFilter && (
-                <div className="absolute right-0 mt-2 w-48 bg-white border-2 border-gray-300 rounded-lg shadow-lg z-50">
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                   <div className="p-3">
                     <button
                       onClick={() => {
@@ -297,7 +300,9 @@ export default function Home() {
                 </div>
               )}
             </div>
-            <button className="text-gray-600 hover:text-gray-800 text-2xl">⋯</button>
+            <button className="text-gray-600 hover:text-gray-800 p-2 rounded-lg hover:bg-gray-100 transition-colors">
+              <MoreVertical size={20} />
+            </button>
           </div>
         </div>
       </header>
@@ -313,25 +318,25 @@ export default function Home() {
             setEditingTags([])
             setShowForm(true)
           }}
-          className="mb-8 w-16 h-16 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center text-3xl font-bold shadow-lg hover:shadow-xl transition-all fixed bottom-8 right-8 z-40"
+          className="mb-8 w-16 h-16 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center shadow-lg hover:shadow-2xl transition-all hover:scale-110 fixed bottom-8 right-8 z-40 group"
           title="Ajouter une note"
         >
-          +
+          <Plus size={28} className="group-hover:rotate-90 transition-transform duration-300" />
         </button>
 
         {/* Notes Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {notes.length === 0 ? (
-            <div className="col-span-full flex flex-col items-center justify-center py-16 text-gray-400">
-              <p className="text-xl mb-2">📝</p>
-              <p className="text-lg">Aucune note pour le moment</p>
-              <p className="text-sm">Cliquez sur le bouton + pour ajouter une note</p>
+            <div className="col-span-full flex flex-col items-center justify-center py-20 text-gray-400">
+              <FileText size={72} className="mb-6 text-gray-300" strokeWidth={1.5} />
+              <p className="text-xl font-semibold text-gray-500 mb-2">Aucune note pour le moment</p>
+              <p className="text-sm text-gray-400">Cliquez sur le bouton + pour ajouter une note</p>
             </div>
           ) : getFilteredAndSortedNotes().length === 0 ? (
-            <div className="col-span-full flex flex-col items-center justify-center py-16 text-gray-400">
-              <p className="text-xl mb-2">🔍</p>
-              <p className="text-lg">Aucun résultat</p>
-              <p className="text-sm">
+            <div className="col-span-full flex flex-col items-center justify-center py-20 text-gray-400">
+              <SearchX size={72} className="mb-6 text-gray-300" strokeWidth={1.5} />
+              <p className="text-xl font-semibold text-gray-500 mb-2">Aucun résultat</p>
+              <p className="text-sm text-gray-400 text-center max-w-md">
                 {searchQuery && selectedTagFilter
                   ? `Aucune note ne contient "${searchQuery}" avec le tag "${selectedTagFilter}"`
                   : searchQuery
@@ -342,7 +347,7 @@ export default function Home() {
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery('')}
-                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm transition-colors"
+                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-all hover:shadow-lg hover:scale-105"
                   >
                     Effacer la recherche
                   </button>
@@ -350,7 +355,7 @@ export default function Home() {
                 {selectedTagFilter && (
                   <button
                     onClick={() => setSelectedTagFilter(null)}
-                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm transition-colors"
+                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-all hover:shadow-lg hover:scale-105"
                   >
                     Effacer le filtre tag
                   </button>
