@@ -1,6 +1,7 @@
 'use client'
 
 import { Pin, X } from 'lucide-react'
+import { sanitizeHTML } from '@/lib/sanitize'
 
 interface NoteProps {
   id: string
@@ -66,7 +67,7 @@ export default function Note({ id, text, title, color, createdAt, tags, isPinned
       )}
       <div
         className="text-gray-800 text-base leading-relaxed break-words pr-8 note-content"
-        dangerouslySetInnerHTML={{ __html: text }}
+        dangerouslySetInnerHTML={{ __html: sanitizeHTML(text) }}
       />
       <div className="flex justify-between items-end mt-4">
         <div></div>

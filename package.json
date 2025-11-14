@@ -10,12 +10,14 @@
   },
   "dependencies": {
     "@instantdb/react": "^0.22.51",
+    "dompurify": "^3.3.0",
     "lucide-react": "^0.553.0",
     "next": "^15.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@types/dompurify": "^3.0.5",
     "@types/node": "^20.10.6",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",

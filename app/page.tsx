@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Search, X, Tag, Plus, FileText, SearchX } from 'lucide-react'
 import Note from './components/Note'
 import NoteForm from './components/NoteForm'
 import { db } from '@/lib/instant'
 import { id } from '@instantdb/react'
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 
 interface NoteItem {
   id: string
@@ -49,9 +50,85 @@ export default function Home() {
   const [showSearch, setShowSearch] = useState(false)
   const [showTagFilter, setShowTagFilter] = useState(false)
   const [selectedTagFilter, setSelectedTagFilter] = useState<string | null>(null)
+  const [showSaveNotification, setShowSaveNotification] = useState(false)
+  const saveNotificationTimeout = useRef<NodeJS.Timeout | null>(null)
 
   // Extract unique tag names from tags collection
   const allTags = tags.map((tag: any) => tag.name)
+
+  // Handle save notification (Ctrl+S)
+  const showSaveFeedback = () => {
+    // Clear existing timeout if any
+    if (saveNotificationTimeout.current) {
+      clearTimeout(saveNotificationTimeout.current)
+    }
+
+    setShowSaveNotification(true)
+    saveNotificationTimeout.current = setTimeout(() => {
+      setShowSaveNotification(false)
+      saveNotificationTimeout.current = null
+    }, 2000)
+  }
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (saveNotificationTimeout.current) {
+        clearTimeout(saveNotificationTimeout.current)
+      }
+    }
+  }, [])
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts([
+    {
+      key: 'n',
+      ctrl: true,
+      callback: () => {
+        if (!showForm) {
+          setEditingId(null)
+          setEditingTitle('')
+          setEditingText('')
+          setEditingTags([])
+          setShowForm(true)
+        }
+      },
+      description: 'Créer une nouvelle note'
+    },
+    {
+      key: 'f',
+      ctrl: true,
+      callback: () => {
+        setShowSearch(!showSearch)
+        if (showSearch) {
+          setSearchQuery('')
+        }
+      },
+      description: 'Activer/désactiver la recherche'
+    },
+    {
+      key: 'Escape',
+      callback: () => {
+        if (showForm) {
+          handleCancelForm()
+        } else if (showSearch) {
+          setShowSearch(false)
+          setSearchQuery('')
+        } else if (showTagFilter) {
+          setShowTagFilter(false)
+        }
+      },
+      description: 'Fermer les modals/panneaux'
+    },
+    {
+      key: 's',
+      ctrl: true,
+      callback: () => {
+        showSaveFeedback()
+      },
+      description: 'Feedback de sauvegarde'
+    }
+  ])
 
   const handleAddNote = (title: string, text: string, noteTags: string[]) => {
     const noteId = id()
@@ -416,6 +493,28 @@ export default function Home() {
           allTags={allTags}
           onAddTag={handleAddTag}
         />
+      )}
+
+      {/* Save Notification (Ctrl+S feedback) */}
+      {showSaveNotification && (
+        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="bg-green-500 text-white px-6 py-3 rounded-lg shadow-2xl flex items-center gap-3">
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            <span className="font-medium">Données synchronisées avec InstantDB</span>
+          </div>
+        </div>
       )}
     </div>
   )

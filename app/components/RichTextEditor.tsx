@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
+import { sanitizeHTML } from '@/lib/sanitize'
 
 interface RichTextEditorProps {
   value: string
@@ -171,7 +172,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
           style={{ fontFamily: 'inherit' }}
         />
       ) : (
-        <div className="w-full h-48 p-3 border-0 rounded-none overflow-y-auto bg-white note-content" dangerouslySetInnerHTML={{ __html: value }} />
+        <div className="w-full h-48 p-3 border-0 rounded-none overflow-y-auto bg-white note-content" dangerouslySetInnerHTML={{ __html: sanitizeHTML(value) }} />
       )}
     </div>
   )
