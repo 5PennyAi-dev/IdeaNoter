@@ -130,7 +130,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
             className="px-3 py-1 bg-white hover:bg-gray-200 border border-gray-300 rounded text-sm"
             title="Bloc de citation"
           >
-            "
+            &quot;
           </button>
           <button
             type="button"

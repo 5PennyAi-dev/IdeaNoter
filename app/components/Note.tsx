@@ -1,5 +1,7 @@
 'use client'
 
+import { Pin, X } from 'lucide-react'
+
 interface NoteProps {
   id: string
   text: string
@@ -15,16 +17,16 @@ interface NoteProps {
 
 export default function Note({ id, text, title, color, createdAt, tags, isPinned = false, onEdit, onDelete, onPin }: NoteProps) {
   const colorClasses: Record<string, string> = {
-    'note-coral': 'bg-note-coral',
-    'note-white': 'bg-note-white',
-    'note-blue': 'bg-note-blue',
-    'note-pink': 'bg-note-pink',
-    'note-gray': 'bg-note-gray',
-    'note-yellow': 'bg-note-yellow',
-    'note-green': 'bg-note-green',
-    'note-peach': 'bg-note-peach',
-    'note-lavender': 'bg-note-lavender',
-    'note-mint': 'bg-note-mint',
+    'note-coral': 'bg-note-coral border-note-coral-accent',
+    'note-white': 'bg-note-white border-note-white-accent',
+    'note-blue': 'bg-note-blue border-note-blue-accent',
+    'note-pink': 'bg-note-pink border-note-pink-accent',
+    'note-gray': 'bg-note-gray border-note-gray-accent',
+    'note-yellow': 'bg-note-yellow border-note-yellow-accent',
+    'note-green': 'bg-note-green border-note-green-accent',
+    'note-peach': 'bg-note-peach border-note-peach-accent',
+    'note-lavender': 'bg-note-lavender border-note-lavender-accent',
+    'note-mint': 'bg-note-mint border-note-mint-accent',
   }
 
   const formatDate = (isoString: string): string => {
@@ -41,7 +43,7 @@ export default function Note({ id, text, title, color, createdAt, tags, isPinned
 
   return (
     <div
-      className={`${colorClasses[color]} rounded-lg p-6 min-h-[150px] flex flex-col justify-between shadow-lg hover:shadow-xl transition-shadow cursor-pointer relative group`}
+      className={`${colorClasses[color]} rounded-xl p-6 min-h-[150px] flex flex-col justify-between shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 ease-out cursor-pointer relative group border-l-4`}
       onClick={() => onEdit(id)}
     >
       {tags && tags.length > 0 && (
@@ -66,30 +68,30 @@ export default function Note({ id, text, title, color, createdAt, tags, isPinned
           {formatDate(createdAt)}
         </span>
       </div>
-      <div className={`absolute top-3 right-3 flex gap-2 transition-opacity ${isPinned ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+      <div className={`absolute top-3 right-3 flex gap-2 transition-opacity duration-200 ${isPinned ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
         <button
           onClick={(e) => {
             e.stopPropagation()
             onPin(id)
           }}
-          className={`rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold transition-colors ${
+          className={`rounded-lg w-8 h-8 flex items-center justify-center backdrop-blur-sm transition-all duration-200 ${
             isPinned
-              ? 'bg-yellow-500 hover:bg-yellow-600 text-white'
-              : 'bg-gray-300 hover:bg-gray-400 text-gray-700'
+              ? 'bg-yellow-500/90 hover:bg-yellow-600/90 text-white shadow-lg'
+              : 'bg-white/80 hover:bg-white/90 text-gray-700 shadow-md'
           }`}
           title={isPinned ? 'Retirer de la place' : 'Figer en place'}
         >
-          📌
+          <Pin size={16} className={isPinned ? 'fill-current' : ''} />
         </button>
         <button
           onClick={(e) => {
             e.stopPropagation()
             onDelete(id)
           }}
-          className="bg-red-500 hover:bg-red-600 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold transition-colors"
+          className="bg-red-500/90 hover:bg-red-600/90 backdrop-blur-sm text-white rounded-lg w-8 h-8 flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg"
           title="Supprimer"
         >
-          ×
+          <X size={16} />
         </button>
       </div>
     </div>
