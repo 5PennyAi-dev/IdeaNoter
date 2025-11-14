@@ -274,7 +274,7 @@ export default function Home() {
 
               {/* Tag Filter Dropdown */}
               {showTagFilter && (
-                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-xl shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                   <div className="p-3">
                     <button
                       onClick={() => {
@@ -319,10 +319,10 @@ export default function Home() {
                                 e.stopPropagation()
                                 handleDeleteTag(tag)
                               }}
-                              className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                              className="px-2 py-1 text-xs font-bold text-red-600 bg-red-100 hover:bg-red-200 rounded transition-colors flex-shrink-0"
                               title="Supprimer ce tag"
                             >
-                              <X size={16} />
+                              ✕
                             </button>
                           </div>
                         ))}
