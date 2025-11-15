@@ -11,10 +11,18 @@ const schema = i.schema({
       createdAt: i.number(),
       tags: i.json<string[]>(),
       isPinned: i.boolean(),
+      isFavorite: i.boolean(),
+      folderId: i.string().optional(),
     }),
     // Tags entity
     tags: i.entity({
       name: i.string(),
+    }),
+    // Folders entity
+    folders: i.entity({
+      name: i.string(),
+      color: i.string().optional(),
+      createdAt: i.number(),
     }),
   },
 })
@@ -34,9 +42,18 @@ export type Note = {
   createdAt: number
   tags: string[]
   isPinned: boolean
+  isFavorite: boolean
+  folderId?: string
 }
 
 export type Tag = {
   id: string
   name: string
+}
+
+export type Folder = {
+  id: string
+  name: string
+  color?: string
+  createdAt: number
 }
