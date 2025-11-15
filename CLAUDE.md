@@ -37,6 +37,9 @@ app/page.tsx (Main container - manages UI state and data operations)
 └── RichTextEditor.tsx (Rich text editing component)
 
 lib/instant.ts (InstantDB configuration and schema)
+lib/sanitize.ts (HTML sanitization utility with DOMPurify)
+
+hooks/useKeyboardShortcuts.ts (Global keyboard shortcuts hook)
 ```
 
 ### Data Model
@@ -128,12 +131,29 @@ const getRandomColor = () => COLORS[Math.floor(Math.random() * COLORS.length)]
 ### Rich Text Editor (`app/components/RichTextEditor.tsx`)
 - **Edit/Preview Modes**: Toggle between editing and rendered preview
 - **Formatting Toolbar**: Bold, Italic, Underline, Strikethrough, Blockquote, Code, Lists
-- **Keyboard Shortcuts**:
+- **Keyboard Shortcuts** (in editor):
   - Ctrl/Cmd+B: Bold (`<strong>`)
   - Ctrl/Cmd+I: Italic (`<em>`)
   - Ctrl/Cmd+U: Underline (`<u>`)
 - **Output**: Semantic HTML tags stored in note.text
-- **Rendering**: Uses `dangerouslySetInnerHTML` in Note component with `.note-content` class
+- **Rendering**: Sanitized HTML displayed with `.note-content` class
+- **Security**: All HTML content sanitized with DOMPurify before rendering
+
+### Global Keyboard Shortcuts (`hooks/useKeyboardShortcuts.ts`)
+Implemented via custom React hook with smart input field detection:
+
+| Shortcut | Action | Description |
+|----------|--------|-------------|
+| **Ctrl/Cmd+N** | New Note | Opens note creation form (only when no modal is open) |
+| **Ctrl/Cmd+F** | Search | Toggles search bar visibility |
+| **Escape** | Close | Closes active modal/panel (priority: form → search → tag filter) |
+| **Ctrl/Cmd+S** | Save Feedback | Shows visual confirmation "Données synchronisées avec InstantDB" |
+
+**Features**:
+- Smart input detection (shortcuts disabled in text fields except Escape)
+- Cross-platform support (Ctrl for Windows/Linux, Cmd for macOS)
+- Single match execution per event
+- Configurable with `KeyboardShortcutConfig` interface
 
 ### Tag System
 - **Global Tags**: Stored in separate `tags` entity in InstantDB
@@ -309,6 +329,9 @@ db.transact([
 ### UI
 - `lucide-react`: ^0.553.0 (Icon library - Pin, X, Search, Tag, Plus, FileText, SearchX)
 
+### Security
+- `dompurify`: ^3.2.3 (HTML sanitization to prevent XSS attacks)
+
 ### Styling
 - `tailwindcss`: ^3.4.1
 - `autoprefixer`: ^10.4.16
@@ -335,9 +358,11 @@ db.transact([
 
 ### HTML Content Security
 - Note content stored as HTML (from rich text editor)
-- Rendered using `dangerouslySetInnerHTML`
-- **Security consideration**: User-generated HTML not sanitized
-- **Recommendation**: Add HTML sanitization library (e.g., DOMPurify) for production
+- **Sanitization**: All HTML sanitized with DOMPurify before rendering
+- **Utility**: `sanitizeHTML()` function in `lib/sanitize.ts`
+- **Allowed tags**: Strong, em, u, s, p, br, blockquote, code, pre, lists, headings, links
+- **XSS Protection**: Configured to prevent script injection and malicious attributes
+- **Usage**: Applied in RichTextEditor preview and Note component display
 
 ### State Management
 - **Server State**: Managed by InstantDB's useQuery hook
@@ -370,13 +395,15 @@ All user-facing strings are in French:
 - Loading and error states
 - Cloud persistence with InstantDB
 - Date display (creation date)
+- **HTML sanitization** (DOMPurify - XSS protection)
+- **Global keyboard shortcuts** (Ctrl+N, Ctrl+F, Escape, Ctrl+S)
+- **Save feedback notification** (visual confirmation)
 
 ### Placeholder/Future Features ⏳
 Refer to `ROADMAP.md` for comprehensive feature planning including:
 - Dark mode
 - Manual color selection
 - Folders/categories
-- Keyboard shortcuts (global)
 - Drag & drop reordering
 - Export (PDF, Markdown)
 - Synchronization (already has cloud backend!)
@@ -424,15 +451,21 @@ Refer to `ROADMAP.md` for comprehensive feature planning including:
 - [ ] Test edit/preview toggle
 - [ ] Test responsive layout (mobile, tablet, desktop)
 - [ ] Test empty states (no notes, no results)
+- [ ] Test HTML sanitization (inject malicious HTML, verify it's stripped)
+- [ ] Test Ctrl+N shortcut (creates new note)
+- [ ] Test Ctrl+F shortcut (toggles search)
+- [ ] Test Escape key (closes modals/panels)
+- [ ] Test Ctrl+S shortcut (shows save notification)
+- [ ] Verify shortcuts don't trigger in text inputs (except Escape)
 
 ### Known Limitations
-- No HTML sanitization (XSS risk if shared between users)
 - No offline support (depends on InstantDB configuration)
 - No user authentication (single shared database)
 - No undo/redo functionality
 - No note versioning
 - No image/file attachments
 - No note export
+- No manual color selection (random assignment only)
 
 ## Architecture Decisions
 
@@ -465,11 +498,12 @@ Refer to `ROADMAP.md` for comprehensive feature planning including:
 Refer to `ROADMAP.md` for detailed roadmap with phases, priorities, and implementation suggestions.
 
 **Next recommended improvements:**
-1. HTML sanitization (security)
-2. Keyboard shortcuts (Ctrl+N, Ctrl+F, Esc)
-3. Dark mode (user experience)
-4. Manual color picker (customization)
-5. User authentication (prerequisite for sharing)
+1. ✅ ~~HTML sanitization (security)~~ - COMPLETED
+2. ✅ ~~Keyboard shortcuts (Ctrl+N, Ctrl+F, Esc)~~ - COMPLETED
+3. Dark mode (user experience) - **NEXT PRIORITY**
+4. Manual color picker (customization) - **NEXT PRIORITY**
+5. Folder/category system (organization)
+6. User authentication (prerequisite for sharing)
 
 **Scaling concerns** (if >1000 notes):
 - Implement virtualized list rendering
