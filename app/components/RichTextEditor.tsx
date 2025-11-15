@@ -63,14 +63,14 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
   return (
     <div className="flex flex-col">
       {/* Mode Tabs */}
-      <div className="flex gap-2 bg-gray-100 border-b border-gray-300 p-2 items-center">
+      <div className="flex gap-2 bg-gray-100 dark:bg-gray-700 border-b border-gray-300 dark:border-gray-600 p-2 items-center transition-colors duration-200">
         <button
           type="button"
           onClick={() => setEditorMode('edit')}
           className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
             editorMode === 'edit'
               ? 'bg-blue-500 text-white'
-              : 'bg-white hover:bg-gray-200 text-gray-800 border border-gray-300'
+              : 'bg-white dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-500'
           }`}
         >
           Édition
@@ -81,7 +81,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
           className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
             editorMode === 'preview'
               ? 'bg-blue-500 text-white'
-              : 'bg-white hover:bg-gray-200 text-gray-800 border border-gray-300'
+              : 'bg-white dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-500'
           }`}
         >
           Aperçu
@@ -91,11 +91,11 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
 
       {/* Toolbar (visible only in edit mode) */}
       {editorMode === 'edit' && (
-        <div className="flex gap-1 bg-gray-100 border-b border-gray-300 p-2">
+        <div className="flex gap-1 bg-gray-100 dark:bg-gray-700 border-b border-gray-300 dark:border-gray-600 p-2 transition-colors duration-200">
           <button
             type="button"
             onClick={() => insertMarkup('<strong>', '</strong>')}
-            className="px-3 py-1 bg-white hover:bg-gray-200 border border-gray-300 rounded text-sm font-bold"
+            className="px-3 py-1 bg-white dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500 border border-gray-300 dark:border-gray-500 rounded text-sm font-bold text-gray-800 dark:text-gray-200"
             title="Gras (Ctrl+B)"
           >
             B
@@ -103,7 +103,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
           <button
             type="button"
             onClick={() => insertMarkup('<em>', '</em>')}
-            className="px-3 py-1 bg-white hover:bg-gray-200 border border-gray-300 rounded text-sm italic"
+            className="px-3 py-1 bg-white dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500 border border-gray-300 dark:border-gray-500 rounded text-sm italic text-gray-800 dark:text-gray-200"
             title="Italique (Ctrl+I)"
           >
             I
@@ -111,7 +111,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
           <button
             type="button"
             onClick={() => insertMarkup('<u>', '</u>')}
-            className="px-3 py-1 bg-white hover:bg-gray-200 border border-gray-300 rounded text-sm underline"
+            className="px-3 py-1 bg-white dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500 border border-gray-300 dark:border-gray-500 rounded text-sm underline text-gray-800 dark:text-gray-200"
             title="Souligné (Ctrl+U)"
           >
             U
@@ -119,16 +119,16 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
           <button
             type="button"
             onClick={() => insertMarkup('<s>', '</s>')}
-            className="px-3 py-1 bg-white hover:bg-gray-200 border border-gray-300 rounded text-sm line-through"
+            className="px-3 py-1 bg-white dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500 border border-gray-300 dark:border-gray-500 rounded text-sm line-through text-gray-800 dark:text-gray-200"
             title="Barré"
           >
             S
           </button>
-          <div className="border-l border-gray-300 mx-1"></div>
+          <div className="border-l border-gray-300 dark:border-gray-500 mx-1"></div>
           <button
             type="button"
             onClick={() => insertMarkup('<blockquote>', '</blockquote>')}
-            className="px-3 py-1 bg-white hover:bg-gray-200 border border-gray-300 rounded text-sm"
+            className="px-3 py-1 bg-white dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500 border border-gray-300 dark:border-gray-500 rounded text-sm text-gray-800 dark:text-gray-200"
             title="Bloc de citation"
           >
             &quot;
@@ -136,7 +136,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
           <button
             type="button"
             onClick={() => insertMarkup('<code>', '</code>')}
-            className="px-3 py-1 bg-white hover:bg-gray-200 border border-gray-300 rounded text-sm font-mono"
+            className="px-3 py-1 bg-white dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500 border border-gray-300 dark:border-gray-500 rounded text-sm font-mono text-gray-800 dark:text-gray-200"
             title="Code en ligne"
           >
             &lt;&gt;
@@ -144,7 +144,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
           <button
             type="button"
             onClick={() => insertMarkup('<ul>\n<li>', '</li>\n</ul>')}
-            className="px-3 py-1 bg-white hover:bg-gray-200 border border-gray-300 rounded text-sm"
+            className="px-3 py-1 bg-white dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500 border border-gray-300 dark:border-gray-500 rounded text-sm text-gray-800 dark:text-gray-200"
             title="Liste à puces"
           >
             •
@@ -152,7 +152,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
           <button
             type="button"
             onClick={() => insertMarkup('<ol>\n<li>', '</li>\n</ol>')}
-            className="px-3 py-1 bg-white hover:bg-gray-200 border border-gray-300 rounded text-sm"
+            className="px-3 py-1 bg-white dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500 border border-gray-300 dark:border-gray-500 rounded text-sm text-gray-800 dark:text-gray-200"
             title="Liste numérotée"
           >
             1.
@@ -168,11 +168,11 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Écrivez votre idée..."
-          className="w-full h-48 p-3 border-0 rounded-none focus:outline-none focus:ring-0 resize-none font-inherit"
+          className="w-full h-48 p-3 border-0 rounded-none focus:outline-none focus:ring-0 resize-none font-inherit bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
           style={{ fontFamily: 'inherit' }}
         />
       ) : (
-        <div className="w-full h-48 p-3 border-0 rounded-none overflow-y-auto bg-white note-content" dangerouslySetInnerHTML={{ __html: sanitizeHTML(value) }} />
+        <div className="w-full h-48 p-3 border-0 rounded-none overflow-y-auto bg-white dark:bg-gray-700 note-content text-gray-900 dark:text-gray-100" dangerouslySetInnerHTML={{ __html: sanitizeHTML(value) }} />
       )}
     </div>
   )

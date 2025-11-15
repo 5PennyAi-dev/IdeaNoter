@@ -1,12 +1,13 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Search, X, Tag, Plus, FileText, SearchX } from 'lucide-react'
+import { Search, X, Tag, Plus, FileText, SearchX, Moon, Sun } from 'lucide-react'
 import Note from './components/Note'
 import NoteForm from './components/NoteForm'
 import { db } from '@/lib/instant'
 import { id } from '@instantdb/react'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
+import { useTheme } from '@/hooks/useTheme'
 
 interface NoteItem {
   id: string
@@ -46,6 +47,7 @@ export default function Home() {
   const [editingTitle, setEditingTitle] = useState('')
   const [editingText, setEditingText] = useState('')
   const [editingTags, setEditingTags] = useState<string[]>([])
+  const [editingColor, setEditingColor] = useState('note-blue')
   const [searchQuery, setSearchQuery] = useState('')
   const [showSearch, setShowSearch] = useState(false)
   const [showTagFilter, setShowTagFilter] = useState(false)
@@ -55,6 +57,9 @@ export default function Home() {
 
   // Extract unique tag names from tags collection
   const allTags = tags.map((tag: any) => tag.name)
+
+  // Theme management
+  const { theme, toggleTheme, mounted } = useTheme()
 
   // Handle save notification (Ctrl+S)
   const showSaveFeedback = () => {
@@ -90,6 +95,7 @@ export default function Home() {
           setEditingTitle('')
           setEditingText('')
           setEditingTags([])
+          setEditingColor('note-blue')
           setShowForm(true)
         }
       },
@@ -130,13 +136,13 @@ export default function Home() {
     }
   ])
 
-  const handleAddNote = (title: string, text: string, noteTags: string[]) => {
+  const handleAddNote = (title: string, text: string, noteTags: string[], color: string) => {
     const noteId = id()
     db.transact([
       db.tx.notes[noteId].update({
         text,
         title: title || undefined,
-        color: getRandomColor(),
+        color,
         createdAt: Date.now(),
         tags: noteTags,
         isPinned: false,
@@ -145,6 +151,7 @@ export default function Home() {
     setShowForm(false)
     setEditingTitle('')
     setEditingTags([])
+    setEditingColor('note-blue')
   }
 
   const handleEditNote = (noteId: string) => {
@@ -154,23 +161,26 @@ export default function Home() {
       setEditingTitle(note.title || '')
       setEditingText(note.text)
       setEditingTags(note.tags)
+      setEditingColor(note.color)
       setShowForm(true)
     }
   }
 
-  const handleUpdateNote = (title: string, text: string, noteTags: string[]) => {
+  const handleUpdateNote = (title: string, text: string, noteTags: string[], color: string) => {
     if (editingId) {
       db.transact([
         db.tx.notes[editingId].update({
           text,
           title: title || undefined,
           tags: noteTags,
+          color,
         })
       ])
       setEditingId(null)
       setEditingTitle('')
       setEditingText('')
       setEditingTags([])
+      setEditingColor('note-blue')
       setShowForm(false)
     }
   }
@@ -196,6 +206,7 @@ export default function Home() {
     setEditingTitle('')
     setEditingText('')
     setEditingTags([])
+    setEditingColor('note-blue')
   }
 
   const handleAddTag = (tagName: string) => {
@@ -280,12 +291,12 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       {/* Header */}
-      <header className="bg-white/95 backdrop-blur-md border-b border-gray-200/50 sticky top-0 z-40 shadow-sm">
+      <header className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 sticky top-0 z-40 shadow-sm transition-colors duration-200">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3 flex-1">
-            <h1 className="text-4xl font-bold text-gray-900 tracking-tight">Mes notes</h1>
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">Mes notes</h1>
           </div>
 
           {/* Search Bar */}
@@ -296,7 +307,7 @@ export default function Home() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Rechercher..."
-                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all text-sm"
+                className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-500/30 transition-all text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 autoFocus
               />
             </div>
@@ -311,16 +322,25 @@ export default function Home() {
                 }
               }}
               className={`p-2 rounded-lg transition-colors ${
-                showSearch ? 'text-blue-500 bg-blue-50' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+                showSearch ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700'
               }`}
               title={showSearch ? 'Fermer la recherche' : 'Rechercher'}
             >
               <Search size={20} />
             </button>
+
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg transition-all text-gray-600 hover:text-gray-800 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700 hover:rotate-180 duration-500"
+              title={theme === 'light' ? 'Mode sombre' : 'Mode clair'}
+            >
+              {mounted && theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+            </button>
             {showSearch && searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="px-3 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors flex items-center gap-1"
+                className="px-3 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors flex items-center gap-1"
                 title="Effacer la recherche"
               >
                 <X size={14} />
@@ -330,7 +350,7 @@ export default function Home() {
               <button
                 onClick={() => setShowTagFilter(!showTagFilter)}
                 className={`p-2 rounded-lg transition-colors ${
-                  selectedTagFilter ? 'text-blue-500 bg-blue-50' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+                  selectedTagFilter ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700'
                 }`}
                 title="Filtrer par tag"
               >
@@ -339,7 +359,7 @@ export default function Home() {
 
               {/* Tag Filter Dropdown with delete functionality */}
               {showTagFilter && (
-                <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-xl shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                   <div className="p-3">
                     <button
                       onClick={() => {
@@ -349,14 +369,14 @@ export default function Home() {
                       className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors mb-2 ${
                         selectedTagFilter === null
                           ? 'bg-blue-500 text-white'
-                          : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
+                          : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200'
                       }`}
                     >
                       Tous les tags
                     </button>
-                    <div className="border-t border-gray-300 my-2"></div>
+                    <div className="border-t border-gray-300 dark:border-gray-600 my-2"></div>
                     {allTags.length === 0 ? (
-                      <p className="text-xs text-gray-500 text-center py-2">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 text-center py-2">
                         Aucun tag disponible
                       </p>
                     ) : (
@@ -374,7 +394,7 @@ export default function Home() {
                               className={`flex-1 text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                                 selectedTagFilter === tag
                                   ? 'bg-blue-500 text-white'
-                                  : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
+                                  : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200'
                               }`}
                             >
                               {tag}
@@ -411,9 +431,10 @@ export default function Home() {
               setEditingTitle('')
               setEditingText('')
               setEditingTags([])
+              setEditingColor(getRandomColor())
               setShowForm(true)
             }}
-            className="mb-8 w-16 h-16 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center shadow-lg hover:shadow-2xl transition-all hover:scale-110"
+            className="mb-8 w-16 h-16 rounded-full bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white flex items-center justify-center shadow-lg hover:shadow-2xl transition-all hover:scale-110"
           >
             <Plus size={28} className="group-hover:rotate-90 transition-transform duration-300" />
           </button>
@@ -426,16 +447,16 @@ export default function Home() {
         {/* Notes Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {notes.length === 0 ? (
-            <div className="col-span-full flex flex-col items-center justify-center py-20 text-gray-400">
-              <FileText size={72} className="mb-6 text-gray-300" strokeWidth={1.5} />
-              <p className="text-xl font-semibold text-gray-500 mb-2">Aucune note pour le moment</p>
-              <p className="text-sm text-gray-400">Cliquez sur le bouton + pour ajouter une note</p>
+            <div className="col-span-full flex flex-col items-center justify-center py-20 text-gray-400 dark:text-gray-600">
+              <FileText size={72} className="mb-6 text-gray-300 dark:text-gray-700" strokeWidth={1.5} />
+              <p className="text-xl font-semibold text-gray-500 dark:text-gray-400 mb-2">Aucune note pour le moment</p>
+              <p className="text-sm text-gray-400 dark:text-gray-600">Cliquez sur le bouton + pour ajouter une note</p>
             </div>
           ) : getFilteredAndSortedNotes().length === 0 ? (
-            <div className="col-span-full flex flex-col items-center justify-center py-20 text-gray-400">
-              <SearchX size={72} className="mb-6 text-gray-300" strokeWidth={1.5} />
-              <p className="text-xl font-semibold text-gray-500 mb-2">Aucun résultat</p>
-              <p className="text-sm text-gray-400 text-center max-w-md">
+            <div className="col-span-full flex flex-col items-center justify-center py-20 text-gray-400 dark:text-gray-600">
+              <SearchX size={72} className="mb-6 text-gray-300 dark:text-gray-700" strokeWidth={1.5} />
+              <p className="text-xl font-semibold text-gray-500 dark:text-gray-400 mb-2">Aucun résultat</p>
+              <p className="text-sm text-gray-400 dark:text-gray-600 text-center max-w-md">
                 {searchQuery && selectedTagFilter
                   ? `Aucune note ne contient "${searchQuery}" avec le tag "${selectedTagFilter}"`
                   : searchQuery
@@ -446,7 +467,7 @@ export default function Home() {
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery('')}
-                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-all hover:shadow-lg hover:scale-105"
+                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-all hover:shadow-lg hover:scale-105"
                   >
                     Effacer la recherche
                   </button>
@@ -454,7 +475,7 @@ export default function Home() {
                 {selectedTagFilter && (
                   <button
                     onClick={() => setSelectedTagFilter(null)}
-                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-all hover:shadow-lg hover:scale-105"
+                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-all hover:shadow-lg hover:scale-105"
                   >
                     Effacer le filtre tag
                   </button>
@@ -472,6 +493,7 @@ export default function Home() {
                 createdAt={note.createdAt}
                 tags={note.tags}
                 isPinned={note.isPinned}
+                theme={theme}
                 onEdit={handleEditNote}
                 onDelete={handleDeleteNote}
                 onPin={handleTogglePin}
@@ -489,6 +511,7 @@ export default function Home() {
           initialTitle={editingTitle}
           initialText={editingText}
           initialTags={editingTags}
+          initialColor={editingColor}
           isEditing={!!editingId}
           allTags={allTags}
           onAddTag={handleAddTag}

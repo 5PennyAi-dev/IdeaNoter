@@ -2,13 +2,16 @@
 
 import { useState, useEffect } from 'react'
 import RichTextEditor from './RichTextEditor'
+import ColorPicker from './ColorPicker'
+import { useTheme } from '@/hooks/useTheme'
 
 interface NoteFormProps {
-  onSubmit: (title: string, text: string, tags: string[]) => void
+  onSubmit: (title: string, text: string, tags: string[], color: string) => void
   onCancel: () => void
   initialTitle?: string
   initialText?: string
   initialTags?: string[]
+  initialColor?: string
   isEditing?: boolean
   allTags: string[]
   onAddTag: (tag: string) => void
@@ -20,6 +23,7 @@ export default function NoteForm({
   initialTitle = '',
   initialText = '',
   initialTags = [],
+  initialColor = 'note-blue',
   isEditing = false,
   allTags,
   onAddTag,
@@ -27,24 +31,29 @@ export default function NoteForm({
   const [title, setTitle] = useState(initialTitle)
   const [text, setText] = useState(initialText)
   const [selectedTags, setSelectedTags] = useState<string[]>(initialTags)
+  const [selectedColor, setSelectedColor] = useState(initialColor)
   const [newTag, setNewTag] = useState('')
   const [showNewTagInput, setShowNewTagInput] = useState(false)
+
+  const { theme } = useTheme()
 
   useEffect(() => {
     setTitle(initialTitle)
     setText(initialText)
     setSelectedTags(initialTags)
-  }, [initialTitle, initialText, initialTags])
+    setSelectedColor(initialColor)
+  }, [initialTitle, initialText, initialTags, initialColor])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     // Check if the rich text content has actual text (remove HTML tags and whitespace)
     const plainText = text.replace(/<[^>]*>/g, '').trim()
     if (plainText) {
-      onSubmit(title, text, selectedTags)
+      onSubmit(title, text, selectedTags, selectedColor)
       setTitle('')
       setText('')
       setSelectedTags([])
+      setSelectedColor('note-blue')
     }
   }
 
@@ -65,10 +74,10 @@ export default function NoteForm({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 modal-backdrop">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto modal-content">
+    <div className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 modal-backdrop">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto modal-content transition-colors duration-200">
         <form onSubmit={handleSubmit} className="p-6">
-          <h2 className="text-3xl font-bold mb-6 text-gray-900 tracking-tight">
+          <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100 tracking-tight">
             {isEditing ? 'Modifier la note' : 'Nouvelle note'}
           </h2>
 
@@ -78,24 +87,31 @@ export default function NoteForm({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Titre (optionnel)..."
-            className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm font-semibold mb-3"
+            className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 text-sm font-semibold mb-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+          />
+
+          {/* Color Picker */}
+          <ColorPicker
+            selectedColor={selectedColor}
+            onColorChange={setSelectedColor}
+            theme={theme}
           />
 
           {/* Rich Text Editor */}
-          <div className="mb-4 bg-white border-2 border-gray-300 rounded-lg overflow-hidden">
+          <div className="mb-4 bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
             <RichTextEditor value={text} onChange={setText} />
           </div>
 
           {/* Tags Section */}
           <div className="mt-6">
-            <label className="block text-sm font-semibold text-gray-800 mb-3">
+            <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
               Tags
             </label>
 
             {/* Tag Dropdown */}
             {allTags.length > 0 && (
               <div className="mb-3">
-                <label className="text-xs text-gray-600 mb-2 block">
+                <label className="text-xs text-gray-600 dark:text-gray-400 mb-2 block">
                   Sélectionner des tags existants (Ctrl+Click pour plusieurs)
                 </label>
                 <select
@@ -105,7 +121,7 @@ export default function NoteForm({
                     const selected = Array.from(e.target.selectedOptions, option => option.value)
                     setSelectedTags(selected)
                   }}
-                  className="w-full h-24 p-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm"
+                  className="w-full h-24 p-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 >
                   {allTags.map((tag) => (
                     <option key={tag} value={tag}>
@@ -118,8 +134,8 @@ export default function NoteForm({
 
             {/* Selected Tags Display */}
             {selectedTags.length > 0 && (
-              <div className="mb-3 p-2 bg-blue-50 rounded-lg border border-blue-200">
-                <label className="text-xs text-gray-600 mb-2 block">
+              <div className="mb-3 p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-700">
+                <label className="text-xs text-gray-600 dark:text-gray-400 mb-2 block">
                   Tags sélectionnés
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -151,7 +167,7 @@ export default function NoteForm({
                     value={newTag}
                     onChange={(e) => setNewTag(e.target.value)}
                     placeholder="Nouveau tag..."
-                    className="flex-1 px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm"
+                    className="flex-1 px-3 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                     autoFocus
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
@@ -167,7 +183,7 @@ export default function NoteForm({
                   <button
                     type="button"
                     onClick={handleAddNewTag}
-                    className="px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-medium transition-colors"
+                    className="px-3 py-2 bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors"
                   >
                     +
                   </button>
@@ -177,7 +193,7 @@ export default function NoteForm({
                       setShowNewTagInput(false)
                       setNewTag('')
                     }}
-                    className="px-3 py-2 bg-gray-400 hover:bg-gray-500 text-white rounded-lg text-sm font-medium transition-colors"
+                    className="px-3 py-2 bg-gray-400 hover:bg-gray-500 dark:bg-gray-600 dark:hover:bg-gray-700 text-white rounded-lg text-sm font-medium transition-colors"
                   >
                     Annuler
                   </button>
@@ -186,7 +202,7 @@ export default function NoteForm({
                 <button
                   type="button"
                   onClick={() => setShowNewTagInput(true)}
-                  className="text-xs text-blue-500 hover:text-blue-700 font-medium"
+                  className="text-xs text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
                 >
                   + Ajouter un nouveau tag
                 </button>
@@ -199,13 +215,13 @@ export default function NoteForm({
             <button
               type="button"
               onClick={onCancel}
-              className="flex-1 px-4 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition-all hover:shadow-md"
+              className="flex-1 px-4 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold rounded-lg transition-all hover:shadow-md"
             >
               Annuler
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:scale-105"
+              className="flex-1 px-4 py-3 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:scale-105"
             >
               {isEditing ? 'Modifier' : 'Ajouter'}
             </button>
