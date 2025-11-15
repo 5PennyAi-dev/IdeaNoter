@@ -453,7 +453,7 @@ export default function Home() {
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
         <header className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 sticky top-0 z-40 shadow-sm transition-colors duration-200">
-          <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3 flex-1">
               {/* Mobile menu button */}
               <button
@@ -588,7 +588,7 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-4 py-8">
+      <main className="px-4 py-8">
         {/* Add Note Button */}
         <div className="fixed bottom-8 right-8 z-40 group">
           <button
