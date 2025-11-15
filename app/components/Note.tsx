@@ -1,6 +1,6 @@
 'use client'
 
-import { Pin, X } from 'lucide-react'
+import { Pin, X, Star } from 'lucide-react'
 import { sanitizeHTML } from '@/lib/sanitize'
 import type { Theme } from '@/hooks/useTheme'
 
@@ -12,13 +12,17 @@ interface NoteProps {
   createdAt: string | number  // Support both ISO string and timestamp
   tags: string[]
   isPinned?: boolean
+  isFavorite?: boolean
   theme: Theme
   onEdit: (id: string) => void
   onDelete: (id: string) => void
   onPin: (id: string) => void
+  onFavorite: (id: string) => void
+  onDragStart?: (id: string) => void
+  onDragEnd?: () => void
 }
 
-export default function Note({ id, text, title, color, createdAt, tags, isPinned = false, theme, onEdit, onDelete, onPin }: NoteProps) {
+export default function Note({ id, text, title, color, createdAt, tags, isPinned = false, isFavorite = false, theme, onEdit, onDelete, onPin, onFavorite, onDragStart, onDragEnd }: NoteProps) {
   // Color classes for light and dark modes
   const colorClassesLight: Record<string, string> = {
     'note-coral': 'bg-note-coral border-note-coral-accent',
@@ -63,6 +67,9 @@ export default function Note({ id, text, title, color, createdAt, tags, isPinned
 
   return (
     <div
+      draggable
+      onDragStart={() => onDragStart && onDragStart(id)}
+      onDragEnd={() => onDragEnd && onDragEnd()}
       className={`${colorClasses[color]} rounded-xl p-6 min-h-[150px] flex flex-col justify-between shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 ease-out cursor-pointer relative group border-l-4`}
       onClick={() => onEdit(id)}
     >
@@ -93,7 +100,21 @@ export default function Note({ id, text, title, color, createdAt, tags, isPinned
           {formatDate(createdAt)}
         </span>
       </div>
-      <div className={`absolute top-3 right-3 flex gap-2 transition-opacity duration-200 ${isPinned ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+      <div className={`absolute top-3 right-3 flex gap-2 transition-opacity duration-200 ${isPinned || isFavorite ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            onFavorite(id)
+          }}
+          className={`rounded-lg w-8 h-8 flex items-center justify-center backdrop-blur-sm transition-all duration-200 ${
+            isFavorite
+              ? 'bg-amber-500/90 hover:bg-amber-600/90 text-white shadow-lg'
+              : 'bg-white/80 dark:bg-gray-700/80 hover:bg-white/90 dark:hover:bg-gray-700/90 text-gray-700 dark:text-gray-300 shadow-md'
+          }`}
+          title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+        >
+          <Star size={16} className={isFavorite ? 'fill-current' : ''} />
+        </button>
         <button
           onClick={(e) => {
             e.stopPropagation()
@@ -102,7 +123,7 @@ export default function Note({ id, text, title, color, createdAt, tags, isPinned
           className={`rounded-lg w-8 h-8 flex items-center justify-center backdrop-blur-sm transition-all duration-200 ${
             isPinned
               ? 'bg-yellow-500/90 hover:bg-yellow-600/90 text-white shadow-lg'
-              : 'bg-white/80 hover:bg-white/90 text-gray-700 shadow-md'
+              : 'bg-white/80 dark:bg-gray-700/80 hover:bg-white/90 dark:hover:bg-gray-700/90 text-gray-700 dark:text-gray-300 shadow-md'
           }`}
           title={isPinned ? 'Retirer de la place' : 'Figer en place'}
         >

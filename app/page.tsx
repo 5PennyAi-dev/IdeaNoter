@@ -1,9 +1,11 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Search, X, Tag, Plus, FileText, SearchX, Moon, Sun } from 'lucide-react'
+import { Search, X, Tag, Plus, FileText, SearchX, Moon, Sun, Menu } from 'lucide-react'
 import Note from './components/Note'
 import NoteForm from './components/NoteForm'
+import Sidebar from './components/Sidebar'
+import FolderForm from './components/FolderForm'
 import { db } from '@/lib/instant'
 import { id } from '@instantdb/react'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
@@ -17,6 +19,7 @@ interface NoteItem {
   createdAt: string
   tags: string[]
   isPinned?: boolean
+  isFavorite?: boolean
 }
 
 const COLORS = [
@@ -37,10 +40,11 @@ const getRandomColor = (): string => {
 }
 
 export default function Home() {
-  // Query notes and tags from InstantDB
-  const { isLoading, error, data } = db.useQuery({ notes: {}, tags: {} })
+  // Query notes, tags, and folders from InstantDB
+  const { isLoading, error, data } = db.useQuery({ notes: {}, tags: {}, folders: {} })
   const notes = data?.notes || []
   const tags = data?.tags || []
+  const folders = data?.folders || []
 
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -54,6 +58,15 @@ export default function Home() {
   const [selectedTagFilter, setSelectedTagFilter] = useState<string | null>(null)
   const [showSaveNotification, setShowSaveNotification] = useState(false)
   const saveNotificationTimeout = useRef<NodeJS.Timeout | null>(null)
+
+  // Folder and view state
+  const [currentView, setCurrentView] = useState<'all' | 'favorites' | 'uncategorized' | string>('all')
+  const [showFolderForm, setShowFolderForm] = useState(false)
+  const [editingFolderId, setEditingFolderId] = useState<string | null>(null)
+  const [editingFolderName, setEditingFolderName] = useState('')
+  const [editingFolderColor, setEditingFolderColor] = useState('blue')
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [draggedNoteId, setDraggedNoteId] = useState<string | null>(null)
 
   // Extract unique tag names from tags collection
   const allTags = tags.map((tag: any) => tag.name)
@@ -146,6 +159,7 @@ export default function Home() {
         createdAt: Date.now(),
         tags: noteTags,
         isPinned: false,
+        isFavorite: false,
       })
     ])
     setShowForm(false)
@@ -200,6 +214,17 @@ export default function Home() {
     }
   }
 
+  const handleToggleFavorite = (noteId: string) => {
+    const note = notes.find((n: any) => n.id === noteId)
+    if (note) {
+      db.transact([
+        db.tx.notes[noteId].update({
+          isFavorite: !note.isFavorite
+        })
+      ])
+    }
+  }
+
   const handleCancelForm = () => {
     setShowForm(false)
     setEditingId(null)
@@ -245,8 +270,125 @@ export default function Home() {
     }
   }
 
+  // Folder CRUD handlers
+  const handleCreateFolder = () => {
+    setEditingFolderId(null)
+    setEditingFolderName('')
+    setEditingFolderColor('blue')
+    setShowFolderForm(true)
+  }
+
+  const handleEditFolder = (folderId: string) => {
+    const folder = folders.find((f: any) => f.id === folderId)
+    if (folder) {
+      setEditingFolderId(folderId)
+      setEditingFolderName(folder.name)
+      setEditingFolderColor(folder.color || 'blue')
+      setShowFolderForm(true)
+    }
+  }
+
+  const handleSubmitFolder = (name: string, color: string) => {
+    if (editingFolderId) {
+      // Update existing folder
+      db.transact([
+        db.tx.folders[editingFolderId].update({
+          name,
+          color,
+        })
+      ])
+    } else {
+      // Create new folder
+      const folderId = id()
+      db.transact([
+        db.tx.folders[folderId].update({
+          name,
+          color,
+          createdAt: Date.now(),
+        })
+      ])
+    }
+    setShowFolderForm(false)
+    setEditingFolderId(null)
+    setEditingFolderName('')
+    setEditingFolderColor('blue')
+  }
+
+  const handleDeleteFolder = (folderId: string) => {
+    // Delete the folder
+    db.transact([db.tx.folders[folderId].delete()])
+
+    // Remove folderId from all notes that use it
+    notes.forEach((note: any) => {
+      if (note.folderId === folderId) {
+        db.transact([
+          db.tx.notes[note.id].update({
+            folderId: undefined
+          })
+        ])
+      }
+    })
+
+    // Switch to 'all' view if the deleted folder is currently selected
+    if (currentView === folderId) {
+      setCurrentView('all')
+    }
+  }
+
+  const handleCancelFolderForm = () => {
+    setShowFolderForm(false)
+    setEditingFolderId(null)
+    setEditingFolderName('')
+    setEditingFolderColor('blue')
+  }
+
+  // Drag and drop handler
+  const handleDrop = (folderId: string | null) => {
+    if (draggedNoteId) {
+      db.transact([
+        db.tx.notes[draggedNoteId].update({
+          folderId: folderId || undefined
+        })
+      ])
+      setDraggedNoteId(null)
+    }
+  }
+
+  // Calculate note counts for sidebar
+  const getNoteCounts = () => {
+    const byFolder: Record<string, number> = {}
+    let favorites = 0
+    let uncategorized = 0
+
+    notes.forEach((note: any) => {
+      if (note.isFavorite) favorites++
+      if (!note.folderId) {
+        uncategorized++
+      } else {
+        byFolder[note.folderId] = (byFolder[note.folderId] || 0) + 1
+      }
+    })
+
+    return {
+      all: notes.length,
+      favorites,
+      uncategorized,
+      byFolder,
+    }
+  }
+
   const getFilteredAndSortedNotes = () => {
     let filtered = [...notes]
+
+    // Apply view filter
+    if (currentView === 'favorites') {
+      filtered = filtered.filter((note: any) => note.isFavorite)
+    } else if (currentView === 'uncategorized') {
+      filtered = filtered.filter((note: any) => !note.folderId)
+    } else if (currentView !== 'all') {
+      // Filter by folder ID
+      filtered = filtered.filter((note: any) => note.folderId === currentView)
+    }
 
     // Apply search filter
     if (searchQuery.trim()) {
@@ -291,13 +433,37 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
-      {/* Header */}
-      <header className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 sticky top-0 z-40 shadow-sm transition-colors duration-200">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3 flex-1">
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">Mes notes</h1>
-          </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200 flex">
+      {/* Sidebar */}
+      <Sidebar
+        currentView={currentView}
+        onViewChange={setCurrentView}
+        folders={folders}
+        onCreateFolder={handleCreateFolder}
+        onEditFolder={handleEditFolder}
+        onDeleteFolder={handleDeleteFolder}
+        noteCounts={getNoteCounts()}
+        theme={theme}
+        onDrop={handleDrop}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
+
+      {/* Main content */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Header */}
+        <header className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 sticky top-0 z-40 shadow-sm transition-colors duration-200">
+          <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-3 flex-1">
+              {/* Mobile menu button */}
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="lg:hidden p-2 rounded-lg transition-colors text-gray-600 hover:text-gray-800 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700"
+              >
+                <Menu size={24} />
+              </button>
+              <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">Mes notes</h1>
+            </div>
 
           {/* Search Bar */}
           {showSearch && (
@@ -493,10 +659,14 @@ export default function Home() {
                 createdAt={note.createdAt}
                 tags={note.tags}
                 isPinned={note.isPinned}
+                isFavorite={note.isFavorite}
                 theme={theme}
                 onEdit={handleEditNote}
                 onDelete={handleDeleteNote}
                 onPin={handleTogglePin}
+                onFavorite={handleToggleFavorite}
+                onDragStart={setDraggedNoteId}
+                onDragEnd={() => setDraggedNoteId(null)}
               />
             ))
           )}
@@ -539,6 +709,19 @@ export default function Home() {
           </div>
         </div>
       )}
+
+      {/* Folder Form Modal */}
+      {showFolderForm && (
+        <FolderForm
+          onSubmit={handleSubmitFolder}
+          onCancel={handleCancelFolderForm}
+          initialName={editingFolderName}
+          initialColor={editingFolderColor}
+          isEditing={!!editingFolderId}
+          theme={theme}
+        />
+      )}
+      </div>
     </div>
   )
 }
