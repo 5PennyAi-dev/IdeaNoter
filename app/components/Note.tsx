@@ -3,6 +3,7 @@
 import { Pin, X, Star } from 'lucide-react'
 import { sanitizeHTML } from '@/lib/sanitize'
 import type { Theme } from '@/hooks/useTheme'
+import { useIsTouchDevice } from '@/hooks/useIsTouchDevice'
 
 interface NoteProps {
   id: string
@@ -23,6 +24,9 @@ interface NoteProps {
 }
 
 export default function Note({ id, text, title, color, createdAt, tags, isPinned = false, isFavorite = false, theme, onEdit, onDelete, onPin, onFavorite, onDragStart, onDragEnd }: NoteProps) {
+  // Detect touch device for button visibility
+  const isTouchDevice = useIsTouchDevice()
+
   // Color classes for light and dark modes
   const colorClassesLight: Record<string, string> = {
     'note-coral': 'bg-note-coral border-note-coral-accent',
@@ -106,28 +110,28 @@ export default function Note({ id, text, title, color, createdAt, tags, isPinned
             e.stopPropagation()
             onFavorite(id)
           }}
-          className={`rounded-lg w-8 h-8 flex items-center justify-center backdrop-blur-sm transition-all duration-200 ${
+          className={`rounded-lg w-11 h-11 md:w-11 md:h-11 flex items-center justify-center backdrop-blur-sm transition-all duration-200 ${
             isFavorite
               ? 'bg-amber-500/90 hover:bg-amber-600/90 text-white shadow-lg opacity-100'
-              : 'bg-white/80 dark:bg-gray-700/80 hover:bg-white/90 dark:hover:bg-gray-700/90 text-gray-700 dark:text-gray-300 shadow-md opacity-0 group-hover:opacity-100'
+              : `bg-white/80 dark:bg-gray-700/80 hover:bg-white/90 dark:hover:bg-gray-700/90 text-gray-700 dark:text-gray-300 shadow-md ${isTouchDevice ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`
           }`}
           title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
         >
-          <Star size={16} className={isFavorite ? 'fill-current' : ''} />
+          <Star size={18} className={isFavorite ? 'fill-current' : ''} />
         </button>
         <button
           onClick={(e) => {
             e.stopPropagation()
             onPin(id)
           }}
-          className={`rounded-lg w-8 h-8 flex items-center justify-center backdrop-blur-sm transition-all duration-200 ${
+          className={`rounded-lg w-11 h-11 md:w-11 md:h-11 flex items-center justify-center backdrop-blur-sm transition-all duration-200 ${
             isPinned
               ? 'bg-yellow-500/90 hover:bg-yellow-600/90 text-white shadow-lg opacity-100'
-              : 'bg-white/80 dark:bg-gray-700/80 hover:bg-white/90 dark:hover:bg-gray-700/90 text-gray-700 dark:text-gray-300 shadow-md opacity-0 group-hover:opacity-100'
+              : `bg-white/80 dark:bg-gray-700/80 hover:bg-white/90 dark:hover:bg-gray-700/90 text-gray-700 dark:text-gray-300 shadow-md ${isTouchDevice ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`
           }`}
           title={isPinned ? 'Retirer de la place' : 'Figer en place'}
         >
-          <Pin size={16} className={isPinned ? 'fill-current' : ''} />
+          <Pin size={18} className={isPinned ? 'fill-current' : ''} />
         </button>
         <button
           onClick={(e) => {
@@ -136,10 +140,10 @@ export default function Note({ id, text, title, color, createdAt, tags, isPinned
               onDelete(id)
             }
           }}
-          className="bg-red-500/90 hover:bg-red-600/90 backdrop-blur-sm text-white rounded-lg w-8 h-8 flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg opacity-0 group-hover:opacity-100"
+          className={`bg-red-500/90 hover:bg-red-600/90 backdrop-blur-sm text-white rounded-lg w-11 h-11 md:w-11 md:h-11 flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg ${isTouchDevice ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
           title="Supprimer"
         >
-          <X size={16} />
+          <X size={18} />
         </button>
       </div>
     </div>

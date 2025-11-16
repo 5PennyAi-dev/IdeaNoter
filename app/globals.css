@@ -2,6 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Safe Area variables for iPhone notch and home indicator */
+:root {
+  --safe-area-inset-top: env(safe-area-inset-top, 0px);
+  --safe-area-inset-right: env(safe-area-inset-right, 0px);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-inset-left: env(safe-area-inset-left, 0px);
+}
+
+/* Custom utilities for safe area */
+@layer utilities {
+  .pt-safe {
+    padding-top: max(1rem, var(--safe-area-inset-top));
+  }
+
+  .pb-safe {
+    padding-bottom: max(1rem, var(--safe-area-inset-bottom));
+  }
+
+  .pl-safe {
+    padding-left: max(1rem, var(--safe-area-inset-left));
+  }
+
+  .pr-safe {
+    padding-right: max(1rem, var(--safe-area-inset-right));
+  }
+
+  /* Bottom safe area for FAB and fixed elements */
+  .bottom-safe {
+    bottom: calc(2rem + var(--safe-area-inset-bottom));
+  }
+}
+
 /* Modal animations */
 @keyframes modalFadeIn {
   from {

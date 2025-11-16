@@ -167,7 +167,7 @@ export default function NoteForm({
                     value={newTag}
                     onChange={(e) => setNewTag(e.target.value)}
                     placeholder="Nouveau tag..."
-                    className="flex-1 px-3 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    className="flex-1 px-3 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 min-h-[44px]"
                     autoFocus
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
@@ -183,7 +183,7 @@ export default function NoteForm({
                   <button
                     type="button"
                     onClick={handleAddNewTag}
-                    className="px-3 py-2 bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors"
+                    className="px-3 py-2 bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                   >
                     +
                   </button>
@@ -193,7 +193,7 @@ export default function NoteForm({
                       setShowNewTagInput(false)
                       setNewTag('')
                     }}
-                    className="px-3 py-2 bg-gray-400 hover:bg-gray-500 dark:bg-gray-600 dark:hover:bg-gray-700 text-white rounded-lg text-sm font-medium transition-colors"
+                    className="px-3 py-2 bg-gray-400 hover:bg-gray-500 dark:bg-gray-600 dark:hover:bg-gray-700 text-white rounded-lg text-sm font-medium transition-colors min-h-[44px]"
                   >
                     Annuler
                   </button>
@@ -215,13 +215,13 @@ export default function NoteForm({
             <button
               type="button"
               onClick={onCancel}
-              className="flex-1 px-4 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold rounded-lg transition-all hover:shadow-md"
+              className="flex-1 px-4 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold rounded-lg transition-all hover:shadow-md min-h-[44px]"
             >
               Annuler
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-3 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:scale-105"
+              className="flex-1 px-4 py-3 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold rounded-lg transition-all hover:shadow-lg hover:scale-105 min-h-[44px]"
             >
               {isEditing ? 'Modifier' : 'Ajouter'}
             </button>

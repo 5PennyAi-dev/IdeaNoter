@@ -10,6 +10,7 @@ import { db } from '@/lib/instant'
 import { id } from '@instantdb/react'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 import { useTheme } from '@/hooks/useTheme'
+import { useIsMobile } from '@/hooks/useIsMobile'
 
 interface NoteItem {
   id: string
@@ -73,6 +74,9 @@ export default function Home() {
 
   // Theme management
   const { theme, toggleTheme, mounted } = useTheme()
+
+  // Mobile detection for tooltip
+  const isMobile = useIsMobile()
 
   // Handle save notification (Ctrl+S)
   const showSaveFeedback = () => {
@@ -458,7 +462,7 @@ export default function Home() {
               {/* Mobile menu button */}
               <button
                 onClick={() => setSidebarOpen(true)}
-                className="lg:hidden p-2 rounded-lg transition-colors text-gray-600 hover:text-gray-800 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700"
+                className="lg:hidden p-2 rounded-lg transition-colors text-gray-600 hover:text-gray-800 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700 min-w-[44px] min-h-[44px] flex items-center justify-center"
               >
                 <Menu size={24} />
               </button>
@@ -487,7 +491,7 @@ export default function Home() {
                   setSearchQuery('')
                 }
               }}
-              className={`p-2 rounded-lg transition-colors ${
+              className={`p-2 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center ${
                 showSearch ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700'
               }`}
               title={showSearch ? 'Fermer la recherche' : 'Rechercher'}
@@ -498,7 +502,7 @@ export default function Home() {
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-lg transition-all text-gray-600 hover:text-gray-800 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700 hover:rotate-180 duration-500"
+              className="p-2 rounded-lg transition-all text-gray-600 hover:text-gray-800 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700 hover:rotate-180 duration-500 min-w-[44px] min-h-[44px] flex items-center justify-center"
               title={theme === 'light' ? 'Mode sombre' : 'Mode clair'}
             >
               {mounted && theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
@@ -506,7 +510,7 @@ export default function Home() {
             {showSearch && searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="px-3 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors flex items-center gap-1"
+                className="px-3 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors flex items-center gap-1 min-w-[44px] min-h-[44px] justify-center"
                 title="Effacer la recherche"
               >
                 <X size={14} />
@@ -515,7 +519,7 @@ export default function Home() {
             <div className="relative">
               <button
                 onClick={() => setShowTagFilter(!showTagFilter)}
-                className={`p-2 rounded-lg transition-colors ${
+                className={`p-2 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center ${
                   selectedTagFilter ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700'
                 }`}
                 title="Filtrer par tag"
@@ -590,7 +594,7 @@ export default function Home() {
       {/* Main Content */}
       <main className="px-4 py-8">
         {/* Add Note Button */}
-        <div className="fixed bottom-8 right-8 z-40 group">
+        <div className="fixed right-8 z-40 group bottom-safe">
           <button
             onClick={() => {
               setEditingId(null)
@@ -604,10 +608,12 @@ export default function Home() {
           >
             <Plus size={28} className="group-hover:rotate-90 transition-transform duration-300" />
           </button>
-          {/* Tooltip */}
-          <span className="absolute bottom-24 right-0 bg-gray-900 text-white text-sm font-medium px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none shadow-xl">
-            Nouvelle note
-          </span>
+          {/* Tooltip - hidden on mobile/touch devices */}
+          {!isMobile && (
+            <span className="absolute bottom-24 right-0 bg-gray-900 text-white text-sm font-medium px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none shadow-xl">
+              Nouvelle note
+            </span>
+          )}
         </div>
 
         {/* Notes Grid */}
