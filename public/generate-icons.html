@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Générateur d'icônes IdeaNoter</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      margin: 10px;
+    }
+    .download-section {
+      margin: 20px 0;
+    }
+    button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover {
+      background: #2563eb;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎨 Générateur d'icônes IdeaNoter</h1>
+  <p>Cliquez sur les boutons pour télécharger chaque icône</p>
+
+  <div class="download-section">
+    <h3>Icônes à télécharger:</h3>
+    <button onclick="downloadIcon(192, 'icon-192.png')">Télécharger icon-192.png</button>
+    <button onclick="downloadIcon(512, 'icon-512.png')">Télécharger icon-512.png</button>
+    <button onclick="downloadIcon(180, 'apple-touch-icon.png')">Télécharger apple-touch-icon.png</button>
+  </div>
+
+  <div id="canvasContainer"></div>
+
+  <script>
+    function createIcon(size) {
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+
+      // Fond avec dégradé
+      const gradient = ctx.createLinearGradient(0, 0, size, size);
+      gradient.addColorStop(0, '#3b82f6');
+      gradient.addColorStop(1, '#8b5cf6');
+
+      // Rectangle arrondi
+      const radius = size * 0.15;
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.roundRect(0, 0, size, size, radius);
+      ctx.fill();
+
+      // Emoji ampoule
+      ctx.font = `${size * 0.4}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('💡', size / 2, size * 0.42);
+
+      // Texte "IDEA"
+      ctx.fillStyle = 'white';
+      ctx.font = `bold ${size * 0.12}px system-ui, -apple-system, sans-serif`;
+      ctx.fillText('IDEA', size / 2, size * 0.75);
+
+      return canvas;
+    }
+
+    function downloadIcon(size, filename) {
+      const canvas = createIcon(size);
+
+      // Afficher l'aperçu
+      const container = document.getElementById('canvasContainer');
+      container.innerHTML = '';
+      container.appendChild(canvas);
+
+      // Télécharger
+      canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+      }, 'image/png');
+    }
+
+    // Pré-afficher la version 192px
+    window.onload = () => {
+      const canvas = createIcon(192);
+      document.getElementById('canvasContainer').appendChild(canvas);
+    };
+  </script>
+</body>
+</html>
