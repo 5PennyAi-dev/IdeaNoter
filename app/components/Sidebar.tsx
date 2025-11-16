@@ -3,6 +3,7 @@
 import { Folder, Star, FileText, Plus, X, Edit2, LayoutGrid } from 'lucide-react'
 import type { Theme } from '@/hooks/useTheme'
 import type { Folder as FolderType } from '@/lib/instant'
+import { useIsTouchDevice } from '@/hooks/useIsTouchDevice'
 
 type ViewType = 'all' | 'favorites' | 'uncategorized' | string
 
@@ -38,6 +39,9 @@ export default function Sidebar({
   isOpen = true,
   onClose,
 }: SidebarProps) {
+  // Detect touch device for button visibility
+  const isTouchDevice = useIsTouchDevice()
+
   // Get folder color classes
   const getFolderColorClass = (color?: string) => {
     if (!color) return theme === 'dark' ? 'bg-folder-gray-dark' : 'bg-folder-gray'
@@ -105,7 +109,7 @@ export default function Sidebar({
           {onClose && (
             <button
               onClick={onClose}
-              className="lg:hidden p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+              className="lg:hidden p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded min-w-[44px] min-h-[44px] flex items-center justify-center"
             >
               <X size={20} className="text-gray-600 dark:text-gray-400" />
             </button>
@@ -224,10 +228,10 @@ export default function Sidebar({
               </h3>
               <button
                 onClick={onCreateFolder}
-                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                 title="Créer un dossier"
               >
-                <Plus size={16} className="text-gray-600 dark:text-gray-400" />
+                <Plus size={18} className="text-gray-600 dark:text-gray-400" />
               </button>
             </div>
 
@@ -269,16 +273,16 @@ export default function Sidebar({
                       >
                         {noteCounts.byFolder[folder.id] || 0}
                       </span>
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                      <div className={`transition-opacity flex gap-1 ${isTouchDevice ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                         <button
                           onClick={(e) => {
                             e.stopPropagation()
                             onEditFolder(folder.id)
                           }}
-                          className="p-1 hover:bg-black/10 dark:hover:bg-white/10 rounded"
+                          className="p-2 hover:bg-black/10 dark:hover:bg-white/10 rounded min-w-[44px] min-h-[44px] flex items-center justify-center"
                           title="Modifier"
                         >
-                          <Edit2 size={14} />
+                          <Edit2 size={16} />
                         </button>
                         <button
                           onClick={(e) => {
@@ -287,10 +291,10 @@ export default function Sidebar({
                               onDeleteFolder(folder.id)
                             }
                           }}
-                          className="p-1 hover:bg-black/10 dark:hover:bg-white/10 rounded"
+                          className="p-2 hover:bg-black/10 dark:hover:bg-white/10 rounded min-w-[44px] min-h-[44px] flex items-center justify-center"
                           title="Supprimer"
                         >
-                          <X size={14} />
+                          <X size={16} />
                         </button>
                       </div>
                     </div>
