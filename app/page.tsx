@@ -53,6 +53,7 @@ export default function Home() {
   const [editingText, setEditingText] = useState('')
   const [editingTags, setEditingTags] = useState<string[]>([])
   const [editingColor, setEditingColor] = useState('note-blue')
+  const [editingNoteFolderId, setEditingNoteFolderId] = useState<string | undefined>(undefined)
   const [searchQuery, setSearchQuery] = useState('')
   const [showSearch, setShowSearch] = useState(false)
   const [showTagFilter, setShowTagFilter] = useState(false)
@@ -113,6 +114,7 @@ export default function Home() {
           setEditingText('')
           setEditingTags([])
           setEditingColor('note-blue')
+          setEditingNoteFolderId(undefined)
           setShowForm(true)
         }
       },
@@ -153,7 +155,7 @@ export default function Home() {
     }
   ])
 
-  const handleAddNote = (title: string, text: string, noteTags: string[], color: string) => {
+  const handleAddNote = (title: string, text: string, noteTags: string[], color: string, folderId?: string) => {
     const noteId = id()
     db.transact([
       db.tx.notes[noteId].update({
@@ -164,6 +166,7 @@ export default function Home() {
         tags: noteTags,
         isPinned: false,
         isFavorite: false,
+        folderId: folderId || undefined,
       })
     ])
     setShowForm(false)
@@ -180,11 +183,12 @@ export default function Home() {
       setEditingText(note.text)
       setEditingTags(note.tags)
       setEditingColor(note.color)
+      setEditingNoteFolderId(note.folderId)
       setShowForm(true)
     }
   }
 
-  const handleUpdateNote = (title: string, text: string, noteTags: string[], color: string) => {
+  const handleUpdateNote = (title: string, text: string, noteTags: string[], color: string, folderId?: string) => {
     if (editingId) {
       db.transact([
         db.tx.notes[editingId].update({
@@ -192,6 +196,7 @@ export default function Home() {
           title: title || undefined,
           tags: noteTags,
           color,
+          folderId: folderId || undefined,
         })
       ])
       setEditingId(null)
@@ -199,6 +204,7 @@ export default function Home() {
       setEditingText('')
       setEditingTags([])
       setEditingColor('note-blue')
+      setEditingNoteFolderId(undefined)
       setShowForm(false)
     }
   }
@@ -236,6 +242,7 @@ export default function Home() {
     setEditingText('')
     setEditingTags([])
     setEditingColor('note-blue')
+    setEditingNoteFolderId(undefined)
   }
 
   const handleAddTag = (tagName: string) => {
@@ -471,13 +478,13 @@ export default function Home() {
 
           {/* Search Bar */}
           {showSearch && (
-            <div className="flex-1 mx-4 max-w-sm animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="flex-1 mx-2 md:mx-4 md:max-w-sm animate-in fade-in slide-in-from-top-2 duration-200">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Rechercher..."
-                className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-500/30 transition-all text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                className="w-full min-w-[150px] px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-500/30 transition-all text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 min-h-[44px]"
                 autoFocus
               />
             </div>
@@ -602,6 +609,7 @@ export default function Home() {
               setEditingText('')
               setEditingTags([])
               setEditingColor(getRandomColor())
+              setEditingNoteFolderId(undefined)
               setShowForm(true)
             }}
             className="mb-8 w-16 h-16 rounded-full bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white flex items-center justify-center shadow-lg hover:shadow-2xl transition-all hover:scale-110"
@@ -688,9 +696,12 @@ export default function Home() {
           initialText={editingText}
           initialTags={editingTags}
           initialColor={editingColor}
+          initialFolderId={editingNoteFolderId}
           isEditing={!!editingId}
           allTags={allTags}
           onAddTag={handleAddTag}
+          folders={folders}
+          currentView={currentView}
         />
       )}
 

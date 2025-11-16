@@ -4,17 +4,22 @@ import { useState, useEffect } from 'react'
 import RichTextEditor from './RichTextEditor'
 import ColorPicker from './ColorPicker'
 import { useTheme } from '@/hooks/useTheme'
+import { Folder } from 'lucide-react'
+import type { Folder as FolderType } from '@/lib/instant'
 
 interface NoteFormProps {
-  onSubmit: (title: string, text: string, tags: string[], color: string) => void
+  onSubmit: (title: string, text: string, tags: string[], color: string, folderId?: string) => void
   onCancel: () => void
   initialTitle?: string
   initialText?: string
   initialTags?: string[]
   initialColor?: string
+  initialFolderId?: string
   isEditing?: boolean
   allTags: string[]
   onAddTag: (tag: string) => void
+  folders: FolderType[]
+  currentView?: string
 }
 
 export default function NoteForm({
@@ -24,36 +29,50 @@ export default function NoteForm({
   initialText = '',
   initialTags = [],
   initialColor = 'note-blue',
+  initialFolderId,
   isEditing = false,
   allTags,
   onAddTag,
+  folders,
+  currentView,
 }: NoteFormProps) {
   const [title, setTitle] = useState(initialTitle)
   const [text, setText] = useState(initialText)
   const [selectedTags, setSelectedTags] = useState<string[]>(initialTags)
   const [selectedColor, setSelectedColor] = useState(initialColor)
+  const [selectedFolder, setSelectedFolder] = useState<string>(initialFolderId || '')
   const [newTag, setNewTag] = useState('')
   const [showNewTagInput, setShowNewTagInput] = useState(false)
 
   const { theme } = useTheme()
+
+  // Auto-select current folder when creating new note
+  useEffect(() => {
+    if (!isEditing && !initialFolderId && currentView && currentView !== 'all' && currentView !== 'favorites' && currentView !== 'uncategorized') {
+      // If we're in a folder view, pre-select that folder
+      setSelectedFolder(currentView)
+    }
+  }, [currentView, isEditing, initialFolderId])
 
   useEffect(() => {
     setTitle(initialTitle)
     setText(initialText)
     setSelectedTags(initialTags)
     setSelectedColor(initialColor)
-  }, [initialTitle, initialText, initialTags, initialColor])
+    setSelectedFolder(initialFolderId || '')
+  }, [initialTitle, initialText, initialTags, initialColor, initialFolderId])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     // Check if the rich text content has actual text (remove HTML tags and whitespace)
     const plainText = text.replace(/<[^>]*>/g, '').trim()
     if (plainText) {
-      onSubmit(title, text, selectedTags, selectedColor)
+      onSubmit(title, text, selectedTags, selectedColor, selectedFolder || undefined)
       setTitle('')
       setText('')
       setSelectedTags([])
       setSelectedColor('note-blue')
+      setSelectedFolder('')
     }
   }
 
@@ -96,6 +115,26 @@ export default function NoteForm({
             onColorChange={setSelectedColor}
             theme={theme}
           />
+
+          {/* Folder Selector */}
+          <div className="mb-4">
+            <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2 flex items-center gap-2">
+              <Folder size={16} />
+              Dossier
+            </label>
+            <select
+              value={selectedFolder}
+              onChange={(e) => setSelectedFolder(e.target.value)}
+              className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 min-h-[44px]"
+            >
+              <option value="">📂 Aucun dossier</option>
+              {folders.map((folder) => (
+                <option key={folder.id} value={folder.id}>
+                  📁 {folder.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
           {/* Rich Text Editor */}
           <div className="mb-4 bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
