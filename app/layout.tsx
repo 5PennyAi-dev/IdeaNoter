@@ -1,9 +1,22 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
   title: 'IdeaNoter',
   description: 'Une application simple pour prendre des notes',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'IdeaNoter',
+  },
+  manifest: '/manifest.json',
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: 'cover',
 }
 
 export default function RootLayout({
@@ -13,12 +26,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr">
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="mobile-web-app-capable" content="yes" />
-      </head>
       <body className="font-sans bg-gray-100">{children}</body>
     </html>
   )
