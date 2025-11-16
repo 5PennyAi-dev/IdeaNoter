@@ -7,23 +7,21 @@ import { useState, useEffect } from 'react'
  * @returns boolean - true if device supports touch events
  */
 export function useIsTouchDevice(): boolean {
-  const [isTouchDevice, setIsTouchDevice] = useState(false)
+  // Start with undefined to avoid hydration mismatch
+  const [isTouchDevice, setIsTouchDevice] = useState<boolean | undefined>(undefined)
 
   useEffect(() => {
-    // Check for touch support
-    const checkTouch = () => {
-      // Multiple checks for better compatibility
-      const hasTouch =
-        'ontouchstart' in window ||
+    // Check for touch support only on client side
+    const hasTouch =
+      typeof window !== 'undefined' &&
+      ('ontouchstart' in window ||
         navigator.maxTouchPoints > 0 ||
         // @ts-ignore - legacy check for older browsers
-        (navigator.msMaxTouchPoints && navigator.msMaxTouchPoints > 0)
+        (navigator.msMaxTouchPoints && navigator.msMaxTouchPoints > 0))
 
-      setIsTouchDevice(hasTouch)
-    }
-
-    checkTouch()
+    setIsTouchDevice(hasTouch)
   }, [])
 
-  return isTouchDevice
+  // Return false during SSR and initial render to match server
+  return isTouchDevice ?? false
 }

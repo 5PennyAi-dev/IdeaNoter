@@ -7,9 +7,13 @@ import { useState, useEffect } from 'react'
  * @returns boolean - true if viewport width is less than 768px
  */
 export function useIsMobile(): boolean {
-  const [isMobile, setIsMobile] = useState(false)
+  // Start with undefined to avoid hydration mismatch
+  const [isMobile, setIsMobile] = useState<boolean | undefined>(undefined)
 
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return
+
     // Initial check
     const checkMobile = () => {
       setIsMobile(window.matchMedia('(max-width: 768px)').matches)
@@ -42,5 +46,6 @@ export function useIsMobile(): boolean {
     }
   }, [])
 
-  return isMobile
+  // Return false during SSR and initial render to match server
+  return isMobile ?? false
 }
